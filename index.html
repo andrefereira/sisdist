@@ -302,6 +302,7 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
     <span class="title-t">Portal do Professor</span>
     <div class="spacer"></div>
     <span class="user-t" id="prof-name-top"></span>
+    <button class="btn-exit hidden" id="btn-back-mgr" onclick="openManagerScreen()" style="background:rgba(255,255,255,.25)">← Painel</button>
     <button class="btn-exit" onclick="logout()">Sair</button>
   </div>
   <div style="max-width:860px;margin:0 auto;padding:24px">
@@ -387,6 +388,7 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
     <span class="title-t" id="mgr-sem-top"></span>
     <div class="spacer"></div>
     <span class="user-t" id="mgr-name-top"></span>
+    <button class="btn-exit" id="btn-mgr-prof-view" onclick="switchToProf()" style="background:rgba(255,255,255,.2)">👤 Minhas Preferências</button>
     <button class="btn-exit" onclick="logout()">Sair</button>
   </div>
   <div class="mgr-layout">
@@ -469,6 +471,7 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
                 </div>
                 <div class="fg"><label>CH Mín</label><input type="number" id="np-min" value="8" min="0" max="40" style="width:70px"></div>
                 <div class="fg"><label>CH Máx</label><input type="number" id="np-max" value="20" min="0" max="40" style="width:70px"></div>
+                <div class="fg" style="margin-top:4px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="np-gestor" style="width:16px;height:16px"> É gestor</label></div>
                 <button class="btn btn-primary btn-sm" onclick="addProf()" style="margin-top:20px">✓</button>
                 <button class="btn btn-ghost btn-sm" onclick="toggleForm('fa-prof')" style="margin-top:20px">✕</button>
               </div>
@@ -808,9 +811,17 @@ async function loadProfData(){
 // ═══════════════════════════════════════════════════════════════
 async function openProfScreen(){
   document.getElementById('prof-name-top').textContent = CUR.prof.nome;
+  // Show "← Painel" only when gestor is viewing as professor
+  document.getElementById('btn-back-mgr').classList.toggle('hidden', !CUR.isGestor);
   setStep(1);
   showScreen('s-professor');
   await buildDiscTable();
+}
+async function switchToProf(){
+  // Gestor switches to professor view to fill own preferences
+  if(!CUR.prof){ toast('Seu perfil não tem área vinculada como professor.','err'); return; }
+  await loadProfData();
+  await openProfScreen();
 }
 
 function setStep(n){
@@ -1002,6 +1013,8 @@ function openManagerScreen(){
   document.getElementById('mgr-name-top').textContent = CUR.prof.nome;
   document.getElementById('mgr-sem-top').textContent = CUR.semestre
     ? `${CUR.semestre.inst} · ${CUR.semestre.nome}` : 'SisDist';
+  // Only show professor-view button if gestor has an area (can participate as professor)
+  document.getElementById('btn-mgr-prof-view').classList.toggle('hidden', !CUR.prof.area_id);
   // Populate semestre form
   if(CUR.semestre){
     document.getElementById('cfg-inst').value = CUR.semestre.inst||'';
@@ -1014,8 +1027,8 @@ function openManagerScreen(){
 }
 
 function updateBadgeStatus(){
-  const total=CUR.profs.filter(p=>!p.is_gestor).length;
-  const done=CUR.profs.filter(p=>!p.is_gestor&&p.confirmado_em).length;
+  const total=CUR.profs.filter(p=>p.area_id).length;
+  const done=CUR.profs.filter(p=>p.area_id&&p.confirmado_em).length;
   const badge=document.getElementById('badge-status');
   badge.textContent=`${done}/${total}`;
   badge.className='badge'+(done===0?' red':done<total?' ':' ok');
@@ -1088,11 +1101,13 @@ async function addProf(){
   const areaId=document.getElementById('np-area').value||null;
   const chMin=+document.getElementById('np-min').value;
   const chMax=+document.getElementById('np-max').value;
+  const isGestor=document.getElementById('np-gestor').checked;
   if(!nome||!email){ toast('Informe nome e e-mail.','err'); return; }
-  const { error } = await db.from('professores').insert({nome,email,area_id:areaId,ch_min:chMin,ch_max:chMax});
+  const { error } = await db.from('professores').insert({nome,email,area_id:areaId,ch_min:chMin,ch_max:chMax,is_gestor:isGestor});
   if(error){ toast(error.message,'err'); return; }
   document.getElementById('np-nome').value='';
   document.getElementById('np-email').value='';
+  document.getElementById('np-gestor').checked=false;
   await loadMgrData(); renderProfs(); toggleForm('fa-prof'); updateBadgeStatus();
   toast('Professor adicionado. Ele precisará acessar o site e usar o e-mail cadastrado para entrar.');
 }
@@ -1103,12 +1118,11 @@ async function delProf(id){
 }
 function renderProfs(){
   const tb=document.getElementById('profs-tbody');
-  const nonGestor=CUR.profs.filter(p=>!p.is_gestor);
-  if(!nonGestor.length){ tb.innerHTML='<tr class="empty-row"><td colspan="4">Nenhum professor cadastrado.</td></tr>'; return; }
+  if(!CUR.profs.length){ tb.innerHTML='<tr class="empty-row"><td colspan="4">Nenhum professor cadastrado.</td></tr>'; return; }
   const areaMap={};
   CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
-  tb.innerHTML=nonGestor.map(p=>`<tr>
-    <td>${p.nome}<br><span class="text-xs text-muted">${p.email}</span></td>
+  tb.innerHTML=CUR.profs.map(p=>`<tr>
+    <td>${p.nome}${p.is_gestor?` <span style="font-size:.7rem;background:var(--green-l);color:var(--green);padding:1px 7px;border-radius:99px;font-weight:600">gestor</span>`:''}<br><span class="text-xs text-muted">${p.email}</span></td>
     <td>${areaMap[p.area_id]||'—'}</td>
     <td>${p.ch_min}–${p.ch_max}h</td>
     <td><div class="act-row">
@@ -1121,12 +1135,13 @@ function editProfModal(id){
   const p=CUR.profs.find(x=>x.id===id); if(!p) return;
   const areaOpts=CUR.areas.map(a=>`<option value="${a.id}"${a.id===p.area_id?' selected':''}>${a.nome}</option>`).join('');
   showModal('Editar Professor',
-    `<div class="form-group"><label>Nome</label><input id="ep-nome" class="w-full" value="${p.nome}" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
+    `<div class="form-group"><label>Nome</label><input id="ep-nome" class="w-full" value="${p.nome}" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;width:100%"></div>
      <div class="form-row">
        <div class="form-group"><label>CH Mín</label><input type="number" id="ep-min" value="${p.ch_min}" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
        <div class="form-group"><label>CH Máx</label><input type="number" id="ep-max" value="${p.ch_max}" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
      </div>
-     <div class="form-group"><label>Área</label><select id="ep-area" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;width:100%"><option value="">Sem área</option>${areaOpts}</select></div>`,
+     <div class="form-group"><label>Área</label><select id="ep-area" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;width:100%"><option value="">Sem área</option>${areaOpts}</select></div>
+     <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ep-gestor"${p.is_gestor?' checked':''} style="width:16px;height:16px"> É gestor</label></div>`,
     `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
      <button class="btn btn-primary" onclick="saveProf('${id}')">Salvar</button>`
   );
@@ -1137,6 +1152,7 @@ async function saveProf(id){
     ch_min: +document.getElementById('ep-min').value,
     ch_max: +document.getElementById('ep-max').value,
     area_id: document.getElementById('ep-area').value||null,
+    is_gestor: document.getElementById('ep-gestor').checked,
   }).eq('id',id);
   if(error){ toast(error.message,'err'); return; }
   closeModal(); await loadMgrData(); renderProfs();
@@ -1230,7 +1246,8 @@ function renderSlots(){
 // ── Status Tab ──
 async function loadStatusTab(){
   await loadMgrData();
-  const nonGestor=CUR.profs.filter(p=>!p.is_gestor);
+  // Include gestors who have an area (they also participate as professors)
+  const nonGestor=CUR.profs.filter(p=>p.area_id);
   const total=nonGestor.length;
   const done=nonGestor.filter(p=>p.confirmado_em).length;
   document.getElementById('status-prog').style.width=total?(done/total*100)+'%':'0%';
@@ -1251,7 +1268,7 @@ async function loadStatusTab(){
   const areaMap={}; CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
 
   const wrap=document.getElementById('status-cards');
-  if(!nonGestor.length){ wrap.innerHTML='<div class="box warn">Nenhum professor cadastrado.</div>'; return; }
+  if(!nonGestor.length){ wrap.innerHTML='<div class="box warn">Nenhum professor com área cadastrado.</div>'; return; }
   wrap.innerHTML=nonGestor.map(p=>{
     const initials=p.nome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const confAt=p.confirmado_em?new Date(p.confirmado_em).toLocaleString('pt-BR'):'—';
@@ -1286,12 +1303,12 @@ async function runModule1(){
   btn.disabled=true; statusEl.textContent='⏳ Carregando dados…';
   await loadMgrData();
 
-  const profs=CUR.profs.filter(p=>!p.is_gestor);
+  const profs=CUR.profs.filter(p=>p.area_id); // include gestors who have an area
   const discs=CUR.disciplinas;
   const sid=CUR.semestre.id;
 
   if(!profs.length||!discs.length){
-    btn.disabled=false; statusEl.textContent='⚠️ Cadastre professores e disciplinas primeiro.'; return;
+    btn.disabled=false; statusEl.textContent='⚠️ Cadastre professores com área e disciplinas primeiro.'; return;
   }
 
   // Load all preferences
@@ -1369,7 +1386,7 @@ async function loadMod1Result(){
   let html=`<div class="box ok mb-12">✅ Satisfação total: <strong>${totalSat}</strong> de ${maxSat} possíveis (${pct}%)</div>
   <table class="result-table"><thead><tr><th>Professor</th><th>Área</th><th>Disciplinas Alocadas</th><th>CH Total</th><th>Status</th></tr></thead><tbody>`;
 
-  CUR.profs.filter(p=>!p.is_gestor).forEach(p=>{
+  CUR.profs.filter(p=>p.area_id).forEach(p=>{
     const g=byProf[p.id];
     const pills=g?g.items.map(r=>{
       const d=discMap[r.disc_id];
