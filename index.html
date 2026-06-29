@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SisDist — IFTM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ── Design System ── */
+:root{
+  --green:#006940;--green-d:#004d2e;--green-l:#e6f4ee;--green-m:#b2d8c4;
+  --gold:#ffc000;--text:#1a1a1a;--text2:#555;--border:#dde3e8;
+  --bg:#f0f2f5;--white:#fff;--red:#c62828;--red-l:#fdecea;
+  --blue:#1565c0;--blue-l:#e8eeff;--warn:#e65100;--warn-l:#fff3e0;
+  --ok:#2e7d32;--ok-l:#e8f5e9;
+  --r0:#b71c1c;--r1:#e53935;--r2:#fb8c00;--r3:#e6c400;--r4:#7cb342;--r5:#2e7d32;
+  --shadow:0 2px 8px rgba(0,0,0,.1);--shadow2:0 4px 20px rgba(0,0,0,.13);
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
+.hidden{display:none!important}
+
+/* ── Screens ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+#s-loading,#s-email-sent{display:flex;align-items:center;justify-content:center;min-height:100vh}
+#s-loading{flex-direction:column;gap:14px}
+
+/* ── Spinner ── */
+.spinner{width:40px;height:40px;border:4px solid var(--green-m);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Cards ── */
+.center-card{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.card{background:var(--white);border-radius:16px;box-shadow:var(--shadow2);padding:40px 48px;width:100%;max-width:480px}
+.card.wide{max-width:600px}
+.card-sm{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:16px}
+.card-sm h3{color:var(--green);margin-bottom:12px}
+
+/* ── Typography / Logo ── */
+.logo-area{text-align:center;margin-bottom:24px}
+.logo-icon{font-size:3rem;display:block;margin-bottom:6px}
+.logo-inst{font-size:.78rem;color:var(--text2);font-weight:500;margin-bottom:2px}
+.logo-title{color:var(--green);font-size:1.8rem;font-weight:700;margin-bottom:4px}
+.logo-sub{color:var(--text2);font-size:.88rem}
+
+/* ── Forms ── */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.83rem;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);
+  border-radius:8px;font-size:.95rem;outline:none;transition:.2s;font-family:inherit
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-l)}
+.form-row{display:flex;gap:12px}.form-row .form-group{flex:1}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 22px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:.18s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--green-d)}
+.btn-secondary{background:var(--white);color:var(--green);border:2px solid var(--green)}.btn-secondary:hover{background:var(--green-l)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{opacity:.85}
+.btn-gold{background:var(--gold);color:var(--green-d)}.btn-gold:hover{opacity:.9}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}.btn-ghost:hover{background:var(--bg)}
+.btn-sm{padding:6px 14px;font-size:.8rem}
+.btn-xs{padding:4px 10px;font-size:.75rem}
+.btn-full{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── Info boxes ── */
+.box{display:flex;gap:10px;padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:.85rem;line-height:1.5}
+.box.info{background:var(--blue-l);color:var(--blue)}
+.box.ok{background:var(--ok-l);color:var(--ok)}
+.box.warn{background:var(--warn-l);color:var(--warn)}
+.box.err{background:var(--red-l);color:var(--red)}
+.err-inline{color:var(--red);font-size:.82rem;margin-top:6px;display:none}
+
+/* ── Topbar ── */
+.topbar{background:var(--green);color:#fff;display:flex;align-items:center;gap:14px;padding:0 24px;height:54px;box-shadow:var(--shadow)}
+.topbar .logo-t{font-weight:700;font-size:1.05rem}
+.topbar .sep{opacity:.35;font-size:1.1rem}
+.topbar .title-t{font-size:.88rem;opacity:.85}
+.topbar .spacer{flex:1}
+.topbar .user-t{font-size:.8rem;opacity:.75;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar .btn-exit{background:rgba(255,255,255,.15);color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600}
+.topbar .btn-exit:hover{background:rgba(255,255,255,.28)}
+
+/* ── Step nav (professor) ── */
+.step-nav{display:flex;overflow:hidden;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:24px;background:var(--white)}
+.step-item{flex:1;padding:12px 8px;text-align:center;font-size:.8rem;color:var(--text2);border-right:1px solid var(--border)}
+.step-item:last-child{border-right:none}
+.step-item.done{background:var(--green-l);color:var(--ok)}
+.step-item.active{background:var(--green);color:#fff;font-weight:600}
+.step-num{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;margin-bottom:3px}
+.step-item.active .step-num{background:rgba(255,255,255,.25)}
+.step-item.done .step-num{background:var(--ok);color:#fff}
+.step-item:not(.active):not(.done) .step-num{background:var(--border);color:var(--text2)}
+
+/* ── Rating buttons ── */
+.rating-group{display:flex;gap:4px}
+.rb{width:33px;height:33px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;transition:.12s;background:var(--white);color:var(--text2);display:flex;align-items:center;justify-content:center}
+.rb:hover{transform:scale(1.12);z-index:1}
+.rb[data-v="0"].sel{background:var(--r0);border-color:var(--r0);color:#fff}
+.rb[data-v="1"].sel{background:var(--r1);border-color:var(--r1);color:#fff}
+.rb[data-v="2"].sel{background:var(--r2);border-color:var(--r2);color:#fff}
+.rb[data-v="3"].sel{background:var(--r3);border-color:#c8a800;color:#333}
+.rb[data-v="4"].sel{background:var(--r4);border-color:var(--r4);color:#fff}
+.rb[data-v="5"].sel{background:var(--r5);border-color:var(--r5);color:#fff}
+.rating-legend{display:flex;gap:12px;font-size:.75rem;margin-bottom:14px;flex-wrap:wrap}
+.rl{display:flex;align-items:center;gap:4px}
+.rl-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.save-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);opacity:0;transition:.3s;flex-shrink:0}
+.save-dot.show{opacity:1}
+
+/* ── Tables ── */
+.table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.data-table th{text-align:left;padding:8px 10px;font-size:.77rem;font-weight:700;color:var(--text2);border-bottom:2px solid var(--border);white-space:nowrap}
+.data-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fafafa}
+.data-table .act-row{display:flex;gap:5px}
+.empty-row td{text-align:center;color:var(--text2);font-style:italic;padding:20px}
+.pref-table th,.pref-table td{padding:6px 8px}
+.pref-table .disc-name{font-weight:500}
+.pref-table .disc-sub{font-size:.75rem;color:var(--text2);margin-top:1px}
+.chip{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:5px;font-size:.77rem;font-weight:700;color:#fff;padding:0 4px}
+.chip-0{background:var(--r0)}.chip-1{background:var(--r1)}.chip-2{background:var(--r2)}
+.chip-3{background:var(--r3);color:#333}.chip-4{background:var(--r4)}.chip-5{background:var(--r5)}
+
+/* ── Slot grid (table of time slots) ── */
+.slot-grid{border-collapse:collapse;font-size:.8rem;min-width:560px;width:100%}
+.slot-grid th{padding:8px 6px;text-align:center;font-weight:600;color:var(--text2);background:#f7f9fb;border:1px solid var(--border)}
+.slot-grid td{padding:5px 6px;border:1px solid var(--border);text-align:center;vertical-align:middle}
+.slot-grid .time-col{font-weight:600;color:var(--text2);background:#f7f9fb;white-space:nowrap;font-size:.75rem;text-align:left;padding-left:8px}
+
+/* ── Manager layout ── */
+.mgr-layout{display:flex;min-height:calc(100vh - 54px)}
+.mgr-sidebar{width:210px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:10px 0;overflow-y:auto}
+.sidebar-section{font-size:.7rem;font-weight:700;color:var(--text2);letter-spacing:.07em;text-transform:uppercase;padding:12px 18px 5px}
+.tab-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 18px;border:none;background:none;cursor:pointer;font-size:.86rem;color:var(--text2);text-align:left;transition:.12s}
+.tab-btn:hover{background:var(--bg);color:var(--text)}
+.tab-btn.active{background:var(--green-l);color:var(--green);font-weight:600;border-right:3px solid var(--green)}
+.tab-btn .ti{font-size:.95rem;width:18px;text-align:center}
+.badge{background:var(--gold);color:var(--green-d);border-radius:999px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:auto}
+.badge.red{background:var(--red);color:#fff}.badge.ok{background:var(--ok);color:#fff}
+.mgr-content{flex:1;overflow:auto;padding:24px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.tab-panel>h2{color:var(--green);margin-bottom:18px}
+
+/* ── Config card ── */
+.config-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.config-card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.config-card-head h3{color:var(--green);font-size:.92rem}
+.config-card-body{padding:16px 20px}
+.inline-form{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;padding:12px 20px;background:var(--green-l);border-top:1px solid var(--green-m)}
+.inline-form input,.inline-form select{padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:.83rem;outline:none;min-width:80px;font-family:inherit}
+.inline-form input:focus,.inline-form select:focus{border-color:var(--green)}
+.inline-form label{font-size:.77rem;color:var(--text2);font-weight:600;display:block;margin-bottom:3px}
+.inline-form .fg{display:flex;flex-direction:column}
+
+/* ── Status cards (professor responses) ── */
+.resp-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:8px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0}
+.resp-info{flex:1}
+.resp-name{font-weight:600;font-size:.9rem}
+.resp-sub{font-size:.78rem;color:var(--text2);margin-top:2px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.dot-ok{background:var(--ok)}.dot-pend{background:var(--warn)}.dot-none{background:#ccc}
+
+/* ── Progress bar ── */
+.prog-wrap{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.prog-bar-bg{flex:1;background:#e0e0e0;border-radius:999px;height:8px;max-width:240px}
+.prog-bar{background:var(--green);height:8px;border-radius:999px;transition:.5s width}
+
+/* ── Module result tables ── */
+.result-table{width:100%;border-collapse:collapse;font-size:.83rem}
+.result-table th{text-align:left;padding:9px 12px;background:var(--green);color:#fff;font-size:.78rem;font-weight:600}
+.result-table td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.result-table tr:nth-child(even) td{background:#fafafa}
+.disc-pill{display:inline-block;background:var(--green-l);color:var(--green-d);border-radius:4px;padding:2px 8px;font-size:.75rem;margin:2px;font-weight:500}
+.ch-ok{background:var(--ok-l);color:var(--ok);padding:3px 8px;border-radius:4px;font-size:.78rem;font-weight:700}
+.ch-warn{background:var(--warn-l);color:var(--warn);padding:3px 8px;border-radius:4px;font-size:.78rem;font-weight:700}
+.ch-err{background:var(--red-l);color:var(--red);padding:3px 8px;border-radius:4px;font-size:.78rem;font-weight:700}
+
+/* ── Schedule grid (result) ── */
+.sched-wrap{overflow-x:auto;margin-bottom:16px}
+.sched-grid{border-collapse:collapse;font-size:.75rem;min-width:600px}
+.sched-grid th{padding:8px 10px;border:1px solid var(--border);background:var(--green);color:#fff;text-align:center;white-space:nowrap}
+.sched-grid td{padding:5px 7px;border:1px solid var(--border);min-width:90px;vertical-align:top}
+.sched-grid .time-h{background:#f0f4f7;font-weight:600;color:var(--text2);text-align:center;white-space:nowrap}
+.sched-cell{background:var(--green-l);border-radius:4px;padding:3px 6px;margin-bottom:2px}
+.sched-cell .sc-prof{font-weight:700;color:var(--green);font-size:.72rem}
+.sched-cell .sc-disc{color:var(--text2);font-size:.7rem}
+
+/* ── Misc ── */
+.flex{display:flex}.gap-8{gap:8px}.gap-12{gap:12px}.items-center{align-items:center}.flex-1{flex:1}.wrap{flex-wrap:wrap}.justify-end{justify-content:flex-end}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
+.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}
+.text-sm{font-size:.82rem}.text-xs{font-size:.74rem}.text-muted{color:var(--text2)}.font-bold{font-weight:700}
+.divider{height:1px;background:var(--border);margin:16px 0}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow2);max-width:480px;width:100%;padding:28px}
+.modal h3{color:var(--green);margin-bottom:14px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+</style>
+</head>
+<body>
+
+<!-- ════ LOADING ════ -->
+<div id="s-loading" class="screen active">
+  <div class="spinner"></div>
+  <span class="text-sm text-muted">Carregando…</span>
+</div>
+
+<!-- ════ LOGIN ════ -->
+<div id="s-login" class="screen">
+  <div class="center-card">
+    <div class="card">
+      <div class="logo-area">
+        <span class="logo-icon">🎓</span>
+        <div class="logo-inst">Instituto Federal do Triângulo Mineiro · Ituiutaba</div>
+        <div class="logo-title">SisDist</div>
+        <div class="logo-sub">Sistema de Distribuição de Disciplinas e Horários</div>
+      </div>
+      <div class="form-group">
+        <label>Seu e-mail institucional</label>
+        <input type="email" id="login-email" placeholder="professor@iftm.edu.br"
+          onkeydown="if(event.key==='Enter')sendMagicLink()">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="sendMagicLink()" id="btn-login">
+        Enviar link de acesso
+      </button>
+      <div class="err-inline" id="err-login" style="display:block;visibility:hidden;margin-top:8px"> </div>
+      <p class="text-xs text-muted mt-12" style="text-align:center">
+        Você receberá um e-mail com um link de acesso único. Sem senha!
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ════ EMAIL SENT ════ -->
+<div id="s-email-sent" class="screen">
+  <div class="center-card">
+    <div class="card" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:12px">📧</div>
+      <h2 style="color:var(--green);margin-bottom:8px">Verifique seu e-mail!</h2>
+      <p class="text-muted" style="margin-bottom:6px">Enviamos um link de acesso para:</p>
+      <p class="font-bold" id="sent-email-display" style="margin-bottom:20px"></p>
+      <div class="box info">Clique no link no e-mail para entrar no sistema. O link expira em 1 hora.</div>
+      <button class="btn btn-ghost btn-full mt-8" onclick="showScreen('s-login')">← Tentar com outro e-mail</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SETUP INICIAL ════ -->
+<div id="s-setup" class="screen">
+  <div class="center-card">
+    <div class="card wide">
+      <div class="logo-area">
+        <span class="logo-icon">⚙️</span>
+        <div class="logo-title">Configuração Inicial</div>
+        <div class="logo-sub">Configure o SisDist para o seu campus</div>
+      </div>
+      <div class="box info">Você é o primeiro usuário — será registrado como <strong>gestor</strong>.</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Seu nome completo</label>
+          <input type="text" id="setup-nome" placeholder="Ex: André Ferreira e Pereira">
+        </div>
+      </div>
+      <div class="divider"></div>
+      <h3 style="color:var(--green);margin-bottom:12px">Primeiro Semestre</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Instituição</label>
+          <input type="text" id="setup-inst" value="IFTM-Ituiutaba">
+        </div>
+        <div class="form-group">
+          <label>Semestre</label>
+          <input type="text" id="setup-sem" placeholder="Ex: 2025/2">
+        </div>
+        <div class="form-group" style="max-width:160px">
+          <label>Horas por faixa</label>
+          <input type="number" id="setup-hrs" value="2" min="1" max="4">
+        </div>
+      </div>
+      <div class="err-inline" id="err-setup"></div>
+      <button class="btn btn-primary btn-full mt-12" onclick="doSetup()" id="btn-setup">
+        Criar configuração inicial →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PROFESSOR ════ -->
+<div id="s-professor" class="screen">
+  <div class="topbar">
+    <span class="logo-t">SisDist</span><span class="sep">|</span>
+    <span class="title-t">Portal do Professor</span>
+    <div class="spacer"></div>
+    <span class="user-t" id="prof-name-top"></span>
+    <button class="btn-exit" onclick="logout()">Sair</button>
+  </div>
+  <div style="max-width:860px;margin:0 auto;padding:24px">
+    <!-- Step nav -->
+    <div class="step-nav">
+      <div class="step-item active" id="sn1"><div class="step-num">1</div><div>Disciplinas</div></div>
+      <div class="step-item" id="sn2"><div class="step-num">2</div><div>Horários</div></div>
+      <div class="step-item" id="sn3"><div class="step-num">3</div><div>Confirmação</div></div>
+    </div>
+
+    <!-- Step 1: Disciplinas -->
+    <div id="ps1">
+      <div class="card-sm">
+        <h3>📚 Preferências por Disciplina</h3>
+        <p class="text-sm text-muted mb-12">Avalie o quanto você deseja assumir cada disciplina da sua área. As notas são salvas automaticamente.</p>
+        <div class="rating-legend">
+          <div class="rl"><div class="rl-dot" style="background:var(--r0)"></div>0 – Não quero</div>
+          <div class="rl"><div class="rl-dot" style="background:var(--r2)"></div>1–2 – Prefiro evitar</div>
+          <div class="rl"><div class="rl-dot" style="background:var(--r3)"></div>3 – Neutro</div>
+          <div class="rl"><div class="rl-dot" style="background:var(--r5)"></div>4–5 – Prefiro</div>
+        </div>
+        <div id="ps1-loading" class="text-muted text-sm">Carregando disciplinas…</div>
+        <div class="table-wrap hidden" id="ps1-table-wrap">
+          <table class="data-table pref-table">
+            <thead><tr><th style="width:50%">Disciplina / Turma</th><th>CH Sem.</th><th>Turno</th><th>Preferência</th><th style="width:30px"></th></tr></thead>
+            <tbody id="ps1-tbody"></tbody>
+          </table>
+        </div>
+        <div class="box warn hidden" id="ps1-empty">Nenhuma disciplina cadastrada para a sua área ainda. Aguarde o gestor.</div>
+        <div class="flex gap-8 mt-16 justify-end">
+          <button class="btn btn-primary" onclick="profGoStep2()">Próximo: Horários →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Horários -->
+    <div id="ps2" class="hidden">
+      <div class="card-sm">
+        <h3>🕐 Preferências de Horário</h3>
+        <p class="text-sm text-muted mb-12">Indique sua disponibilidade e preferência para cada faixa. 0 = não posso. As notas são salvas automaticamente.</p>
+        <div class="rating-legend">
+          <div class="rl"><div class="rl-dot" style="background:var(--r0)"></div>0 – Não posso</div>
+          <div class="rl"><div class="rl-dot" style="background:var(--r1)"></div>1–2 – Prefiro evitar</div>
+          <div class="rl"><div class="rl-dot" style="background:var(--r3)"></div>3 – Neutro</div>
+          <div class="rl"><div class="rl-dot" style="background:var(--r5)"></div>4–5 – Prefiro</div>
+        </div>
+        <div id="ps2-loading" class="text-muted text-sm">Carregando horários…</div>
+        <div class="table-wrap hidden" id="ps2-table-wrap">
+          <table class="slot-grid" id="ps2-grid"></table>
+        </div>
+        <div class="box warn hidden" id="ps2-empty">Nenhuma faixa horária cadastrada ainda. Aguarde o gestor.</div>
+        <div class="flex gap-8 mt-16">
+          <button class="btn btn-secondary" onclick="profGoStep1()">← Voltar</button>
+          <div class="flex-1"></div>
+          <button class="btn btn-primary" onclick="profGoStep3()">Próximo: Confirmar →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirmação -->
+    <div id="ps3" class="hidden">
+      <div class="card-sm">
+        <h3>✅ Confirmar Preenchimento</h3>
+        <p class="text-sm text-muted mb-12">Revise e confirme. Você poderá editar suas respostas voltando às etapas anteriores.</p>
+        <div id="ps3-summary"></div>
+        <div class="box ok hidden" id="ps3-confirmed">
+          ✅ Preenchimento confirmado! O gestor foi notificado. Você pode editar suas respostas retornando às etapas anteriores.
+        </div>
+        <div class="flex gap-8 mt-16">
+          <button class="btn btn-secondary" onclick="profGoStep2()">← Voltar</button>
+          <div class="flex-1"></div>
+          <button class="btn btn-gold" onclick="profConfirm()" id="btn-prof-confirm">✓ Confirmar Respostas</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /body -->
+</div><!-- /s-professor -->
+
+<!-- ════ GESTOR ════ -->
+<div id="s-manager" class="screen">
+  <div class="topbar">
+    <span class="logo-t">SisDist</span><span class="sep">|</span>
+    <span class="title-t" id="mgr-sem-top"></span>
+    <div class="spacer"></div>
+    <span class="user-t" id="mgr-name-top"></span>
+    <button class="btn-exit" onclick="logout()">Sair</button>
+  </div>
+  <div class="mgr-layout">
+    <!-- Sidebar -->
+    <nav class="mgr-sidebar">
+      <div class="sidebar-section">Configuração</div>
+      <button class="tab-btn active" onclick="showTab('t-sem')"     id="tb-t-sem">    <span class="ti">📅</span> Semestre</button>
+      <button class="tab-btn"        onclick="showTab('t-areas')"   id="tb-t-areas">  <span class="ti">🏫</span> Áreas & Profs</button>
+      <button class="tab-btn"        onclick="showTab('t-disc')"    id="tb-t-disc">   <span class="ti">📚</span> Disciplinas</button>
+      <button class="tab-btn"        onclick="showTab('t-hor')"     id="tb-t-hor">    <span class="ti">🕐</span> Faixas Horárias</button>
+      <div class="sidebar-section">Coleta</div>
+      <button class="tab-btn"        onclick="showTab('t-status')"  id="tb-t-status"> <span class="ti">📊</span> Status <span class="badge" id="badge-status">0</span></button>
+      <div class="sidebar-section">Distribuição</div>
+      <button class="tab-btn"        onclick="showTab('t-mod1')"    id="tb-t-mod1">   <span class="ti">🎯</span> Módulo 1</button>
+      <button class="tab-btn"        onclick="showTab('t-mod2')"    id="tb-t-mod2">   <span class="ti">📅</span> Módulo 2</button>
+    </nav>
+
+    <!-- Content -->
+    <div class="mgr-content">
+
+      <!-- ── TAB: SEMESTRE ── -->
+      <div class="tab-panel active" id="t-sem">
+        <h2>📅 Semestre Ativo</h2>
+        <div class="config-card">
+          <div class="config-card-head"><h3>Configurações Gerais</h3></div>
+          <div class="config-card-body">
+            <div class="form-row">
+              <div class="form-group"><label>Instituição</label><input type="text" id="cfg-inst"></div>
+              <div class="form-group"><label>Semestre</label><input type="text" id="cfg-sem"></div>
+              <div class="form-group" style="max-width:160px"><label>Horas por faixa</label><input type="number" id="cfg-hrs" min="1" max="4"></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveSemConfig()">Salvar alterações</button>
+          </div>
+        </div>
+        <div class="config-card">
+          <div class="config-card-head"><h3>Criar Novo Semestre</h3></div>
+          <div class="config-card-body">
+            <p class="text-sm text-muted mb-12">Cria um novo semestre e o torna o ativo. Os dados do semestre anterior são preservados.</p>
+            <div class="form-row">
+              <div class="form-group"><label>Nome</label><input type="text" id="new-sem-nome" placeholder="Ex: 2025/2"></div>
+              <div class="form-group"><label>Horas por faixa</label><input type="number" id="new-sem-hrs" value="2" min="1" max="4"></div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="createNewSem()">+ Criar novo semestre</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: ÁREAS & PROFESSORES ── -->
+      <div class="tab-panel" id="t-areas">
+        <h2>🏫 Áreas e Professores</h2>
+        <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:18px;align-items:start">
+          <!-- Areas -->
+          <div>
+            <div class="config-card">
+              <div class="config-card-head">
+                <h3>Áreas</h3>
+                <button class="btn btn-primary btn-sm" onclick="toggleForm('fa-area')">+ Adicionar</button>
+              </div>
+              <div class="inline-form hidden" id="fa-area">
+                <div class="fg"><label>Nome da área</label><input type="text" id="na-nome" placeholder="Ex: Matemática"></div>
+                <button class="btn btn-primary btn-sm" onclick="addArea()" style="margin-top:20px">✓</button>
+                <button class="btn btn-ghost btn-sm" onclick="toggleForm('fa-area')" style="margin-top:20px">✕</button>
+              </div>
+              <table class="data-table"><thead><tr><th>Área</th><th></th></tr></thead>
+              <tbody id="areas-tbody"></tbody></table>
+            </div>
+          </div>
+          <!-- Professors -->
+          <div>
+            <div class="config-card">
+              <div class="config-card-head">
+                <h3 id="profs-head">Professores</h3>
+                <button class="btn btn-primary btn-sm" onclick="toggleForm('fa-prof')">+ Adicionar</button>
+              </div>
+              <div class="inline-form hidden" id="fa-prof">
+                <div class="fg"><label>Nome</label><input type="text" id="np-nome" placeholder="Nome completo"></div>
+                <div class="fg"><label>E-mail</label><input type="email" id="np-email" placeholder="email@iftm.edu.br"></div>
+                <div class="fg"><label>Área</label>
+                  <select id="np-area"><option value="">Selecione</option></select>
+                </div>
+                <div class="fg"><label>CH Mín</label><input type="number" id="np-min" value="8" min="0" max="40" style="width:70px"></div>
+                <div class="fg"><label>CH Máx</label><input type="number" id="np-max" value="20" min="0" max="40" style="width:70px"></div>
+                <button class="btn btn-primary btn-sm" onclick="addProf()" style="margin-top:20px">✓</button>
+                <button class="btn btn-ghost btn-sm" onclick="toggleForm('fa-prof')" style="margin-top:20px">✕</button>
+              </div>
+              <table class="data-table"><thead><tr><th>Nome</th><th>Área</th><th>CH</th><th></th></tr></thead>
+              <tbody id="profs-tbody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: DISCIPLINAS ── -->
+      <div class="tab-panel" id="t-disc">
+        <h2>📚 Disciplinas</h2>
+        <div class="flex gap-8 mb-12 items-center">
+          <label class="text-sm font-bold text-muted">Filtrar por área:</label>
+          <select id="disc-filter-area" onchange="renderDiscs()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:.85rem;outline:none">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="config-card">
+          <div class="config-card-head">
+            <h3>Disciplinas / Turmas</h3>
+            <button class="btn btn-primary btn-sm" onclick="toggleForm('fa-disc')">+ Adicionar</button>
+          </div>
+          <div class="inline-form hidden" id="fa-disc">
+            <div class="fg"><label>Disciplina</label><input type="text" id="nd-nome" placeholder="Nome da disciplina"></div>
+            <div class="fg"><label>Turma</label><input type="text" id="nd-turma" placeholder="Ex: TINF21A"></div>
+            <div class="fg"><label>CH Semanal</label><input type="number" id="nd-ch" value="4" min="1" max="20" style="width:70px"></div>
+            <div class="fg"><label>Área</label><select id="nd-area"><option value="">Selecione</option></select></div>
+            <div class="fg"><label>Turno</label>
+              <select id="nd-turno">
+                <option value="diurno">Diurno</option>
+                <option value="noturno">Noturno</option>
+                <option value="ambos">Ambos</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addDisc()" style="margin-top:20px">✓</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleForm('fa-disc')" style="margin-top:20px">✕</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table"><thead><tr><th>#</th><th>Disciplina</th><th>Turma</th><th>Área</th><th>CH</th><th>Turno</th><th></th></tr></thead>
+            <tbody id="disc-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: FAIXAS HORÁRIAS ── -->
+      <div class="tab-panel" id="t-hor">
+        <h2>🕐 Faixas Horárias</h2>
+        <div class="config-card">
+          <div class="config-card-head">
+            <h3>Faixas do Semestre Ativo</h3>
+            <div class="flex gap-8">
+              <button class="btn btn-secondary btn-sm" onclick="loadDefaultSlots()">↩ Carregar Padrão</button>
+              <button class="btn btn-primary btn-sm" onclick="toggleForm('fa-hor')">+ Adicionar</button>
+            </div>
+          </div>
+          <div class="inline-form hidden" id="fa-hor">
+            <div class="fg"><label>Dia</label>
+              <select id="nh-dia">
+                <option>Segunda</option><option>Terça</option><option>Quarta</option>
+                <option>Quinta</option><option>Sexta</option><option>Sábado</option>
+              </select>
+            </div>
+            <div class="fg"><label>Início</label><input type="time" id="nh-ini" value="07:30"></div>
+            <div class="fg"><label>Fim</label><input type="time" id="nh-fim" value="09:10"></div>
+            <div class="fg"><label>Turno</label>
+              <select id="nh-turno"><option value="diurno">Diurno</option><option value="noturno">Noturno</option></select>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addSlot()" style="margin-top:20px">✓</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleForm('fa-hor')" style="margin-top:20px">✕</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table"><thead><tr><th>#</th><th>Dia</th><th>Início</th><th>Fim</th><th>Turno</th><th></th></tr></thead>
+            <tbody id="hor-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: STATUS ── -->
+      <div class="tab-panel" id="t-status">
+        <h2>📊 Status das Respostas</h2>
+        <div class="prog-wrap">
+          <div class="prog-bar-bg"><div class="prog-bar" id="status-prog" style="width:0%"></div></div>
+          <span class="text-sm text-muted" id="status-prog-text">0 / 0 confirmados</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadStatusTab()">↻ Atualizar</button>
+        </div>
+        <div id="status-cards"></div>
+      </div>
+
+      <!-- ── TAB: MÓDULO 1 ── -->
+      <div class="tab-panel" id="t-mod1">
+        <h2>🎯 Módulo 1 — Distribuição de Disciplinas</h2>
+        <div class="box info">
+          Modelo PLI: maximiza <strong>Σ c<sub>ij</sub>·x<sub>ij</sub></strong> (preferência do professor <em>i</em> pela disciplina <em>j</em>), garantindo que cada disciplina tenha exatamente um professor e que a carga horária de cada docente respeite os limites cadastrados. O solver Branch-and-Bound roda em seu navegador.
+        </div>
+        <div class="flex gap-12 items-center mb-16 wrap">
+          <button class="btn btn-primary" onclick="runModule1()" id="btn-mod1">▶ Executar Módulo 1</button>
+          <span class="text-sm text-muted" id="mod1-status"></span>
+        </div>
+        <div id="mod1-result"></div>
+      </div>
+
+      <!-- ── TAB: MÓDULO 2 ── -->
+      <div class="tab-panel" id="t-mod2">
+        <h2>📅 Módulo 2 — Distribuição de Horários</h2>
+        <div class="box info">
+          Para cada disciplina atribuída (Módulo 1), o modelo seleciona as faixas horárias compatíveis com o turno da disciplina e maximiza a preferência declarada pelo professor responsável (<strong>Σ e<sub>ph</sub>·x<sub>thp</sub></strong>), respeitando unicidade de docente e de turma por faixa.
+        </div>
+        <div class="box warn" id="mod2-prereq">⚠️ Execute o Módulo 1 antes de continuar.</div>
+        <div class="flex gap-12 items-center mb-16 wrap">
+          <button class="btn btn-primary" onclick="runModule2()" id="btn-mod2" disabled>▶ Executar Módulo 2</button>
+          <span class="text-sm text-muted" id="mod2-status"></span>
+        </div>
+        <div id="mod2-result"></div>
+      </div>
+
+    </div><!-- /mgr-content -->
+  </div><!-- /mgr-layout -->
+</div><!-- /s-manager -->
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body" style="font-size:.9rem;color:var(--text2);line-height:1.5"></div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// ⚙️  CONFIGURAÇÃO — altere antes de publicar no GitHub Pages
+// ═══════════════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://helfbwhgufvihzzwizax.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlbGZid2hndWZ2aWh6endpemF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0OTA4MTQsImV4cCI6MjA5ODA2NjgxNH0.gobB3x5EoOD0GGjispgzilpF5cpcSiVFaz_FuBRo_h4';
+// ═══════════════════════════════════════════════════════════════
+
+const { createClient } = window.supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { persistSession: true, autoRefreshToken: true }
+});
+
+// ── State ──────────────────────────────────────────────────────
+let CUR = {           // current user session data
+  user: null,
+  prof: null,         // row from professores
+  isGestor: false,
+  semestre: null,     // active semestre row
+  areas: [],
+  profs: [],
+  disciplinas: [],
+  horarios: [],
+};
+const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+
+// ── Debounce ───────────────────────────────────────────────────
+const _saves = {};
+function debounce(key, fn, ms=700){
+  if(_saves[key]) clearTimeout(_saves[key]);
+  _saves[key] = setTimeout(()=>{ delete _saves[key]; fn(); }, ms);
+}
+
+// ── Screen helpers ─────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('tb-'+id).classList.add('active');
+  // Lazy load
+  if(id==='t-status') loadStatusTab();
+  if(id==='t-areas') renderAreas();
+  if(id==='t-disc') renderDiscs();
+  if(id==='t-hor') renderSlots();
+  if(id==='t-mod1' && CUR.semestre) loadMod1Result();
+  if(id==='t-mod2' && CUR.semestre) loadMod2Result();
+}
+function toggleForm(id){
+  document.getElementById(id).classList.toggle('hidden');
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function showModal(title, body, btns='<button class="btn btn-primary" onclick="closeModal()">OK</button>'){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-footer').innerHTML = btns;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+function closeModal(e){
+  if(!e || e.target===document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.add('hidden');
+}
+function toast(msg, type='ok'){
+  const d=document.createElement('div');
+  d.style.cssText=`position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:8px;font-size:.85rem;font-weight:600;z-index:9999;box-shadow:var(--shadow2);background:${type==='ok'?'var(--ok)':'var(--red)'};color:#fff`;
+  d.textContent=msg;
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(), 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════
+async function sendMagicLink(){
+  const email = document.getElementById('login-email').value.trim();
+  const errEl = document.getElementById('err-login');
+  errEl.style.visibility='hidden';
+  if(!email){ errEl.textContent='Informe seu e-mail.'; errEl.style.display='block'; errEl.style.visibility='visible'; return; }
+  const btn = document.getElementById('btn-login');
+  btn.disabled=true; btn.textContent='Enviando…';
+  const { error } = await db.auth.signInWithOtp({
+    email,
+    options:{ emailRedirectTo: window.location.href.split('#')[0] }
+  });
+  btn.disabled=false; btn.textContent='Enviar link de acesso';
+  if(error){
+    errEl.textContent = error.message === 'Email rate limit exceeded'
+      ? 'Muitas tentativas. Aguarde alguns minutos.'
+      : 'Erro: '+error.message;
+    errEl.style.display='block'; errEl.style.visibility='visible';
+    return;
+  }
+  document.getElementById('sent-email-display').textContent = email;
+  showScreen('s-email-sent');
+}
+
+async function logout(){
+  await db.auth.signOut();
+  CUR = {user:null,prof:null,isGestor:false,semestre:null,areas:[],profs:[],disciplinas:[],horarios:[]};
+  showScreen('s-login');
+}
+
+// Auth state listener
+db.auth.onAuthStateChange(async (event, session) => {
+  if(event==='SIGNED_IN' && session){
+    CUR.user = session.user;
+    await afterLogin();
+  } else if(event==='SIGNED_OUT' || !session){
+    showScreen('s-login');
+  }
+});
+
+async function afterLogin(){
+  showScreen('s-loading');
+  try {
+    // Link or get profile
+    const { data, error } = await db.rpc('get_or_link_profile');
+    if(error) throw error;
+    if(!data){
+      // Check if this is the very first user (no gestor yet)
+      const { count } = await db.from('professores').select('*',{count:'exact',head:true}).eq('is_gestor',true);
+      if(count === 0){
+        showScreen('s-setup');
+      } else {
+        showModal('Acesso não autorizado',
+          'Seu e-mail não está cadastrado no sistema. Entre em contato com o gestor responsável.');
+        showScreen('s-login');
+      }
+      return;
+    }
+    CUR.prof = data;
+    CUR.isGestor = data.is_gestor;
+
+    // Load active semestre
+    const { data: sem } = await db.from('semestres').select('*').eq('ativo',true).order('created_at',{ascending:false}).limit(1).single();
+    CUR.semestre = sem;
+
+    if(CUR.isGestor){
+      await loadMgrData();
+      openManagerScreen();
+    } else {
+      await loadProfData();
+      openProfScreen();
+    }
+  } catch(e){
+    console.error(e);
+    showModal('Erro',e.message||'Erro ao carregar perfil. Recarregue a página.');
+    showScreen('s-login');
+  }
+}
+
+// ── Initial Setup ──────────────────────────────────────────────
+async function doSetup(){
+  const nome = document.getElementById('setup-nome').value.trim();
+  const inst = document.getElementById('setup-inst').value.trim();
+  const sem  = document.getElementById('setup-sem').value.trim();
+  const hrs  = parseFloat(document.getElementById('setup-hrs').value)||2;
+  const err  = document.getElementById('err-setup');
+  if(!nome||!inst||!sem){ err.textContent='Preencha todos os campos.'; err.style.display='block'; return; }
+  const btn=document.getElementById('btn-setup'); btn.disabled=true; btn.textContent='Configurando…';
+  const { error } = await db.rpc('setup_initial_gestor',{p_nome:nome,p_inst:inst,p_semestre:sem,p_hrs_faixa:hrs});
+  btn.disabled=false; btn.textContent='Criar configuração inicial →';
+  if(error){ err.textContent=error.message; err.style.display='block'; return; }
+  await afterLogin();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DATA LOADING
+// ═══════════════════════════════════════════════════════════════
+async function loadMgrData(){
+  if(!CUR.semestre) return;
+  const sid = CUR.semestre.id;
+  const [a,p,d,h] = await Promise.all([
+    db.from('areas').select('*').eq('semestre_id',sid).order('nome'),
+    db.from('professores').select('*').order('nome'),
+    db.from('disciplinas').select('*').eq('semestre_id',sid).order('nome'),
+    db.from('horarios').select('*').eq('semestre_id',sid).order('dia').order('inicio'),
+  ]);
+  CUR.areas      = a.data||[];
+  CUR.profs      = p.data||[];
+  CUR.disciplinas= d.data||[];
+  CUR.horarios   = h.data||[];
+}
+
+async function loadProfData(){
+  if(!CUR.semestre) return;
+  const sid = CUR.semestre.id;
+  const areaId = CUR.prof.area_id;
+  const [d,h] = await Promise.all([
+    areaId
+      ? db.from('disciplinas').select('*').eq('area_id',areaId).eq('semestre_id',sid).order('nome')
+      : { data:[] },
+    db.from('horarios').select('*').eq('semestre_id',sid).order('dia').order('inicio'),
+  ]);
+  CUR.disciplinas = d.data||[];
+  CUR.horarios    = h.data||[];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROFESSOR SCREEN
+// ═══════════════════════════════════════════════════════════════
+async function openProfScreen(){
+  document.getElementById('prof-name-top').textContent = CUR.prof.nome;
+  setStep(1);
+  showScreen('s-professor');
+  await buildDiscTable();
+}
+
+function setStep(n){
+  [1,2,3].forEach(i=>{
+    const sn=document.getElementById('sn'+i);
+    sn.className='step-item'+(i<n?' done':i===n?' active':'');
+    const ps=document.getElementById('ps'+i);
+    ps.classList.toggle('hidden', i!==n);
+  });
+}
+
+// Step 1 – Disciplines
+async function buildDiscTable(){
+  const load=document.getElementById('ps1-loading');
+  const wrap=document.getElementById('ps1-table-wrap');
+  const empty=document.getElementById('ps1-empty');
+  load.classList.remove('hidden'); wrap.classList.add('hidden'); empty.classList.add('hidden');
+
+  // Load saved preferences
+  const profId = CUR.prof.id;
+  const { data: saved } = await db.from('preferencias_disciplinas')
+    .select('disc_id,nota').eq('prof_id',profId);
+  const prefsMap = {};
+  (saved||[]).forEach(r=>prefsMap[r.disc_id]=r.nota);
+
+  load.classList.add('hidden');
+  if(!CUR.disciplinas.length){ empty.classList.remove('hidden'); return; }
+  wrap.classList.remove('hidden');
+
+  const areaMap = {};
+  (CUR.areas||[]).forEach(a=>areaMap[a.id]=a.nome);
+  const tbody = document.getElementById('ps1-tbody');
+  tbody.innerHTML = CUR.disciplinas.map(d=>{
+    const nota = prefsMap[d.id]??3;
+    return `<tr>
+      <td><div class="disc-name">${d.nome}</div><div class="disc-sub">${d.turma||''}</div></td>
+      <td>${d.ch_semanal}h</td>
+      <td><span style="font-size:.75rem;background:${d.turno==='noturno'?'#e8eeff':'var(--ok-l)'};color:${d.turno==='noturno'?'var(--blue)':'var(--ok)'};padding:2px 7px;border-radius:4px;font-weight:600">${d.turno}</span></td>
+      <td><div class="rating-group" data-disc="${d.id}">${ratingBtns(nota)}</div></td>
+      <td><div class="save-dot" id="dot-d-${d.id}"></div></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('.rb').forEach(b=>b.addEventListener('click',onDiscRate));
+}
+
+async function onDiscRate(e){
+  const btn=e.currentTarget;
+  const grp=btn.closest('[data-disc]');
+  grp.querySelectorAll('.rb').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const discId=grp.dataset.disc;
+  const nota=parseInt(btn.dataset.v);
+  const dot=document.getElementById('dot-d-'+discId);
+  debounce('dp-'+discId, async()=>{
+    await db.from('preferencias_disciplinas').upsert(
+      {prof_id:CUR.prof.id, disc_id:discId, nota, updated_at:new Date().toISOString()},
+      {onConflict:'prof_id,disc_id'}
+    );
+    dot.classList.add('show');
+    setTimeout(()=>dot.classList.remove('show'),1200);
+  });
+}
+
+async function profGoStep2(){
+  setStep(2);
+  await buildSlotGrid();
+}
+function profGoStep1(){ setStep(1); }
+
+// Step 2 – Slots
+async function buildSlotGrid(){
+  const load=document.getElementById('ps2-loading');
+  const wrap=document.getElementById('ps2-table-wrap');
+  const empty=document.getElementById('ps2-empty');
+  load.classList.remove('hidden'); wrap.classList.add('hidden'); empty.classList.add('hidden');
+
+  const { data: saved } = await db.from('preferencias_horarios')
+    .select('horario_id,nota').eq('prof_id',CUR.prof.id);
+  const prefsMap={};
+  (saved||[]).forEach(r=>prefsMap[r.horario_id]=r.nota);
+
+  load.classList.add('hidden');
+  if(!CUR.horarios.length){ empty.classList.remove('hidden'); return; }
+  wrap.classList.remove('hidden');
+
+  const byDay={};
+  DAYS.forEach(d=>byDay[d]=[]);
+  CUR.horarios.forEach(h=>{ if(!byDay[h.dia])byDay[h.dia]=[]; byDay[h.dia].push(h); });
+  const activeDays=DAYS.filter(d=>byDay[d].length>0);
+  const times=[...new Set(CUR.horarios.map(h=>h.inicio))].sort();
+
+  let html='<thead><tr><th>Horário</th>';
+  activeDays.forEach(d=>html+=`<th>${d}</th>`);
+  html+='</tr></thead><tbody>';
+  times.forEach(t=>{
+    const fim=CUR.horarios.find(h=>h.inicio===t)?.fim||'';
+    html+=`<tr><td class="time-col">${t}<br><span style="font-weight:400;color:#aaa;font-size:.7rem">${fim}</span></td>`;
+    activeDays.forEach(d=>{
+      const slot=byDay[d].find(h=>h.inicio===t);
+      if(slot){
+        const nota=prefsMap[slot.id]??3;
+        html+=`<td><div class="rating-group" data-slot="${slot.id}" style="justify-content:center">${ratingBtns(nota,true)}</div>
+          <div class="save-dot" id="dot-s-${slot.id}" style="margin:0 auto"></div></td>`;
+      } else html+='<td style="background:#f8f8f8"></td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('ps2-grid').innerHTML=html;
+  document.querySelectorAll('#ps2-grid .rb').forEach(b=>b.addEventListener('click',onSlotRate));
+}
+
+async function onSlotRate(e){
+  const btn=e.currentTarget;
+  const grp=btn.closest('[data-slot]');
+  grp.querySelectorAll('.rb').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const slotId=grp.dataset.slot;
+  const nota=parseInt(btn.dataset.v);
+  const dot=document.getElementById('dot-s-'+slotId);
+  debounce('sp-'+slotId, async()=>{
+    await db.from('preferencias_horarios').upsert(
+      {prof_id:CUR.prof.id, horario_id:slotId, nota, updated_at:new Date().toISOString()},
+      {onConflict:'prof_id,horario_id'}
+    );
+    dot.classList.add('show');
+    setTimeout(()=>dot.classList.remove('show'),1200);
+  });
+}
+
+async function profGoStep3(){
+  setStep(3);
+  await buildProfSummary();
+}
+function profGoStep2(){ setStep(2); }
+
+async function buildProfSummary(){
+  const wrap=document.getElementById('ps3-summary');
+  const conf=document.getElementById('ps3-confirmed');
+  conf.classList.toggle('hidden', !CUR.prof.confirmado_em);
+
+  const [pd,ph]=await Promise.all([
+    db.from('preferencias_disciplinas').select('disc_id,nota').eq('prof_id',CUR.prof.id),
+    db.from('preferencias_horarios').select('horario_id,nota').eq('prof_id',CUR.prof.id),
+  ]);
+  const dpMap={}, hpMap={};
+  (pd.data||[]).forEach(r=>dpMap[r.disc_id]=r.nota);
+  (ph.data||[]).forEach(r=>hpMap[r.horario_id]=r.nota);
+
+  const discFilled=(pd.data||[]).length;
+  const slotFilled=(ph.data||[]).length;
+  const discTotal=CUR.disciplinas.length;
+  const slotTotal=CUR.horarios.length;
+
+  wrap.innerHTML=`
+    <div class="flex gap-12 mb-16 wrap">
+      <div class="box ${discFilled>=discTotal?'ok':'warn'}" style="flex:1;margin:0">
+        📚 Disciplinas: ${discFilled} de ${discTotal} preenchidas
+      </div>
+      <div class="box ${slotFilled>=slotTotal?'ok':'warn'}" style="flex:1;margin:0">
+        🕐 Horários: ${slotFilled} de ${slotTotal} preenchidos
+      </div>
+    </div>`;
+}
+
+async function profConfirm(){
+  const btn=document.getElementById('btn-prof-confirm');
+  btn.disabled=true; btn.textContent='Confirmando…';
+  const { error } = await db.rpc('confirmar_submissao');
+  btn.disabled=false; btn.textContent='✓ Confirmar Respostas';
+  if(error){ toast('Erro: '+error.message,'err'); return; }
+  CUR.prof.confirmado_em = new Date().toISOString();
+  document.getElementById('ps3-confirmed').classList.remove('hidden');
+  toast('Preenchimento confirmado!','ok');
+}
+
+// Rating HTML helper
+function ratingBtns(sel=3, small=false){
+  const w=small?'28px':'33px';
+  return [0,1,2,3,4,5].map(v=>
+    `<button class="rb${v===sel?' sel':''}" data-v="${v}" style="width:${w};height:${w}">${v}</button>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MANAGER SCREEN
+// ═══════════════════════════════════════════════════════════════
+function openManagerScreen(){
+  document.getElementById('mgr-name-top').textContent = CUR.prof.nome;
+  document.getElementById('mgr-sem-top').textContent = CUR.semestre
+    ? `${CUR.semestre.inst} · ${CUR.semestre.nome}` : 'SisDist';
+  // Populate semestre form
+  if(CUR.semestre){
+    document.getElementById('cfg-inst').value = CUR.semestre.inst||'';
+    document.getElementById('cfg-sem').value  = CUR.semestre.nome||'';
+    document.getElementById('cfg-hrs').value  = CUR.semestre.hrs_por_faixa||2;
+  }
+  showScreen('s-manager');
+  showTab('t-sem');
+  updateBadgeStatus();
+}
+
+function updateBadgeStatus(){
+  const total=CUR.profs.filter(p=>!p.is_gestor).length;
+  const done=CUR.profs.filter(p=>!p.is_gestor&&p.confirmado_em).length;
+  const badge=document.getElementById('badge-status');
+  badge.textContent=`${done}/${total}`;
+  badge.className='badge'+(done===0?' red':done<total?' ':' ok');
+}
+
+// ── Semestre ──
+async function saveSemConfig(){
+  if(!CUR.semestre) return;
+  const { error } = await db.from('semestres').update({
+    inst: document.getElementById('cfg-inst').value,
+    nome: document.getElementById('cfg-sem').value,
+    hrs_por_faixa: parseFloat(document.getElementById('cfg-hrs').value)||2
+  }).eq('id',CUR.semestre.id);
+  if(error){ toast(error.message,'err'); return; }
+  await loadMgrData();
+  document.getElementById('mgr-sem-top').textContent=`${CUR.semestre.inst}·${CUR.semestre.nome}`;
+  toast('Configurações salvas!');
+}
+
+async function createNewSem(){
+  const nome=document.getElementById('new-sem-nome').value.trim();
+  const hrs=parseFloat(document.getElementById('new-sem-hrs').value)||2;
+  if(!nome){ toast('Informe o nome do semestre.','err'); return; }
+  // Deactivate current
+  await db.from('semestres').update({ativo:false}).eq('id',CUR.semestre?.id||'');
+  const { data, error } = await db.from('semestres').insert(
+    {nome, inst:CUR.semestre?.inst||'IFTM', ativo:true, hrs_por_faixa:hrs}
+  ).select().single();
+  if(error){ toast(error.message,'err'); return; }
+  CUR.semestre=data;
+  await loadMgrData();
+  document.getElementById('new-sem-nome').value='';
+  document.getElementById('cfg-inst').value=data.inst;
+  document.getElementById('cfg-sem').value=data.nome;
+  document.getElementById('cfg-hrs').value=data.hrs_por_faixa;
+  document.getElementById('mgr-sem-top').textContent=`${data.inst} · ${data.nome}`;
+  toast('Novo semestre criado e ativado!');
+}
+
+// ── Areas ──
+async function addArea(){
+  const nome=document.getElementById('na-nome').value.trim();
+  if(!nome||!CUR.semestre) return;
+  const { error } = await db.from('areas').insert({nome, semestre_id:CUR.semestre.id});
+  if(error){ toast(error.message,'err'); return; }
+  document.getElementById('na-nome').value='';
+  await loadMgrData(); renderAreas(); toggleForm('fa-area');
+  populateAreaSelects();
+}
+async function delArea(id){
+  if(!confirm('Remover esta área e todas as disciplinas vinculadas?')) return;
+  await db.from('areas').delete().eq('id',id);
+  await loadMgrData(); renderAreas(); renderDiscs();
+}
+function renderAreas(){
+  const tb=document.getElementById('areas-tbody');
+  if(!CUR.areas.length){ tb.innerHTML='<tr class="empty-row"><td colspan="2">Nenhuma área.</td></tr>'; return; }
+  tb.innerHTML=CUR.areas.map(a=>`<tr>
+    <td>${a.nome}</td>
+    <td><div class="act-row">
+      <button class="btn btn-xs btn-danger" onclick="delArea('${a.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// ── Professors ──
+async function addProf(){
+  const nome=document.getElementById('np-nome').value.trim();
+  const email=document.getElementById('np-email').value.trim().toLowerCase();
+  const areaId=document.getElementById('np-area').value||null;
+  const chMin=+document.getElementById('np-min').value;
+  const chMax=+document.getElementById('np-max').value;
+  if(!nome||!email){ toast('Informe nome e e-mail.','err'); return; }
+  const { error } = await db.from('professores').insert({nome,email,area_id:areaId,ch_min:chMin,ch_max:chMax});
+  if(error){ toast(error.message,'err'); return; }
+  document.getElementById('np-nome').value='';
+  document.getElementById('np-email').value='';
+  await loadMgrData(); renderProfs(); toggleForm('fa-prof'); updateBadgeStatus();
+  toast('Professor adicionado. Ele precisará acessar o site e usar o e-mail cadastrado para entrar.');
+}
+async function delProf(id){
+  if(!confirm('Remover este professor?')) return;
+  await db.from('professores').delete().eq('id',id);
+  await loadMgrData(); renderProfs(); updateBadgeStatus();
+}
+function renderProfs(){
+  const tb=document.getElementById('profs-tbody');
+  const nonGestor=CUR.profs.filter(p=>!p.is_gestor);
+  if(!nonGestor.length){ tb.innerHTML='<tr class="empty-row"><td colspan="4">Nenhum professor cadastrado.</td></tr>'; return; }
+  const areaMap={};
+  CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
+  tb.innerHTML=nonGestor.map(p=>`<tr>
+    <td>${p.nome}<br><span class="text-xs text-muted">${p.email}</span></td>
+    <td>${areaMap[p.area_id]||'—'}</td>
+    <td>${p.ch_min}–${p.ch_max}h</td>
+    <td><div class="act-row">
+      <button class="btn btn-xs btn-ghost" onclick="editProfModal('${p.id}')">✏️</button>
+      <button class="btn btn-xs btn-danger" onclick="delProf('${p.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+function editProfModal(id){
+  const p=CUR.profs.find(x=>x.id===id); if(!p) return;
+  const areaOpts=CUR.areas.map(a=>`<option value="${a.id}"${a.id===p.area_id?' selected':''}>${a.nome}</option>`).join('');
+  showModal('Editar Professor',
+    `<div class="form-group"><label>Nome</label><input id="ep-nome" class="w-full" value="${p.nome}" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
+     <div class="form-row">
+       <div class="form-group"><label>CH Mín</label><input type="number" id="ep-min" value="${p.ch_min}" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
+       <div class="form-group"><label>CH Máx</label><input type="number" id="ep-max" value="${p.ch_max}" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
+     </div>
+     <div class="form-group"><label>Área</label><select id="ep-area" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;width:100%"><option value="">Sem área</option>${areaOpts}</select></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+     <button class="btn btn-primary" onclick="saveProf('${id}')">Salvar</button>`
+  );
+}
+async function saveProf(id){
+  const { error } = await db.from('professores').update({
+    nome: document.getElementById('ep-nome').value.trim(),
+    ch_min: +document.getElementById('ep-min').value,
+    ch_max: +document.getElementById('ep-max').value,
+    area_id: document.getElementById('ep-area').value||null,
+  }).eq('id',id);
+  if(error){ toast(error.message,'err'); return; }
+  closeModal(); await loadMgrData(); renderProfs();
+}
+function populateAreaSelects(){
+  ['np-area','nd-area'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel) return;
+    sel.innerHTML='<option value="">Selecione</option>'+CUR.areas.map(a=>`<option value="${a.id}">${a.nome}</option>`).join('');
+  });
+  // Disc filter
+  const df=document.getElementById('disc-filter-area');
+  if(df) df.innerHTML='<option value="">Todas</option>'+CUR.areas.map(a=>`<option value="${a.id}">${a.nome}</option>`).join('');
+}
+
+// ── Disciplines ──
+async function addDisc(){
+  const nome=document.getElementById('nd-nome').value.trim();
+  const turma=document.getElementById('nd-turma').value.trim();
+  const ch=+document.getElementById('nd-ch').value;
+  const areaId=document.getElementById('nd-area').value||null;
+  const turno=document.getElementById('nd-turno').value;
+  if(!nome||!CUR.semestre){ toast('Informe o nome e selecione uma área.','err'); return; }
+  const { error } = await db.from('disciplinas').insert({nome,turma,ch_semanal:ch,area_id:areaId,turno,semestre_id:CUR.semestre.id});
+  if(error){ toast(error.message,'err'); return; }
+  document.getElementById('nd-nome').value=''; document.getElementById('nd-turma').value='';
+  await loadMgrData(); renderDiscs(); toggleForm('fa-disc');
+}
+async function delDisc(id){
+  if(!confirm('Remover esta disciplina?')) return;
+  await db.from('disciplinas').delete().eq('id',id);
+  await loadMgrData(); renderDiscs();
+}
+function renderDiscs(){
+  const areaFilter=document.getElementById('disc-filter-area')?.value||'';
+  const areaMap={}; CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
+  const list=areaFilter ? CUR.disciplinas.filter(d=>d.area_id===areaFilter) : CUR.disciplinas;
+  const tb=document.getElementById('disc-tbody');
+  if(!list.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhuma disciplina.</td></tr>'; return; }
+  tb.innerHTML=list.map((d,i)=>`<tr>
+    <td>${i+1}</td><td>${d.nome}</td><td>${d.turma||'—'}</td>
+    <td>${areaMap[d.area_id]||'—'}</td><td>${d.ch_semanal}h</td>
+    <td><span style="font-size:.75rem;background:${d.turno==='noturno'?'#e8eeff':'var(--ok-l)'};color:${d.turno==='noturno'?'var(--blue)':'var(--ok)'};padding:2px 7px;border-radius:4px;font-weight:600">${d.turno}</span></td>
+    <td><button class="btn btn-xs btn-danger" onclick="delDisc('${d.id}')">🗑</button></td>
+  </tr>`).join('');
+  populateAreaSelects();
+}
+
+// ── Slots ──
+async function loadDefaultSlots(){
+  if(!CUR.semestre) return;
+  if(!confirm('Isso substituirá as faixas horárias existentes. Continuar?')) return;
+  await db.from('horarios').delete().eq('semestre_id',CUR.semestre.id);
+  const PERIODS=[
+    {ini:'07:30',fim:'09:10',turno:'diurno'},{ini:'09:30',fim:'11:10',turno:'diurno'},
+    {ini:'13:30',fim:'15:10',turno:'diurno'},{ini:'15:30',fim:'17:10',turno:'diurno'},
+    {ini:'19:00',fim:'20:40',turno:'noturno'},{ini:'20:50',fim:'22:30',turno:'noturno'}
+  ];
+  const DDAYS=['Segunda','Terça','Quarta','Quinta','Sexta'];
+  const rows=[];
+  DDAYS.forEach(d=>PERIODS.forEach(p=>rows.push({dia:d,inicio:p.ini,fim:p.fim,turno:p.turno,semestre_id:CUR.semestre.id})));
+  const { error } = await db.from('horarios').insert(rows);
+  if(error){ toast(error.message,'err'); return; }
+  await loadMgrData(); renderSlots(); toast('Faixas padrão carregadas!');
+}
+async function addSlot(){
+  if(!CUR.semestre) return;
+  const { error } = await db.from('horarios').insert({
+    dia:document.getElementById('nh-dia').value,
+    inicio:document.getElementById('nh-ini').value,
+    fim:document.getElementById('nh-fim').value,
+    turno:document.getElementById('nh-turno').value,
+    semestre_id:CUR.semestre.id
+  });
+  if(error){ toast(error.message,'err'); return; }
+  await loadMgrData(); renderSlots(); toggleForm('fa-hor');
+}
+async function delSlot(id){
+  await db.from('horarios').delete().eq('id',id);
+  await loadMgrData(); renderSlots();
+}
+function renderSlots(){
+  const tb=document.getElementById('hor-tbody');
+  if(!CUR.horarios.length){ tb.innerHTML='<tr class="empty-row"><td colspan="6">Nenhuma faixa. Use "Carregar Padrão".</td></tr>'; return; }
+  tb.innerHTML=CUR.horarios.map((h,i)=>`<tr>
+    <td>${i+1}</td><td>${h.dia}</td><td>${h.inicio}</td><td>${h.fim||'—'}</td>
+    <td><span style="font-size:.75rem;background:${h.turno==='noturno'?'#e8eeff':'var(--ok-l)'};color:${h.turno==='noturno'?'var(--blue)':'var(--ok)'};padding:2px 7px;border-radius:4px;font-weight:600">${h.turno}</span></td>
+    <td><button class="btn btn-xs btn-danger" onclick="delSlot('${h.id}')">🗑</button></td>
+  </tr>`).join('');
+}
+
+// ── Status Tab ──
+async function loadStatusTab(){
+  await loadMgrData();
+  const nonGestor=CUR.profs.filter(p=>!p.is_gestor);
+  const total=nonGestor.length;
+  const done=nonGestor.filter(p=>p.confirmado_em).length;
+  document.getElementById('status-prog').style.width=total?(done/total*100)+'%':'0%';
+  document.getElementById('status-prog-text').textContent=`${done} / ${total} confirmados`;
+  updateBadgeStatus();
+
+  // Load preference counts per professor
+  const profIds=nonGestor.map(p=>p.id);
+  let dpCounts={}, spCounts={};
+  if(profIds.length){
+    const [dp,sp]=await Promise.all([
+      db.from('preferencias_disciplinas').select('prof_id').in('prof_id',profIds),
+      db.from('preferencias_horarios').select('prof_id').in('prof_id',profIds),
+    ]);
+    (dp.data||[]).forEach(r=>dpCounts[r.prof_id]=(dpCounts[r.prof_id]||0)+1);
+    (sp.data||[]).forEach(r=>spCounts[r.prof_id]=(spCounts[r.prof_id]||0)+1);
+  }
+  const areaMap={}; CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
+
+  const wrap=document.getElementById('status-cards');
+  if(!nonGestor.length){ wrap.innerHTML='<div class="box warn">Nenhum professor cadastrado.</div>'; return; }
+  wrap.innerHTML=nonGestor.map(p=>{
+    const initials=p.nome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const confAt=p.confirmado_em?new Date(p.confirmado_em).toLocaleString('pt-BR'):'—';
+    const dpN=dpCounts[p.id]||0;
+    const spN=spCounts[p.id]||0;
+    const discTotal=CUR.disciplinas.filter(d=>d.area_id===p.area_id).length;
+    const slotTotal=CUR.horarios.length;
+    const statusCls=p.confirmado_em?'dot-ok':dpN>0||spN>0?'dot-pend':'dot-none';
+    const statusTxt=p.confirmado_em?`Confirmado em ${confAt}`:dpN>0||spN>0?'Em preenchimento':'Não iniciado';
+    return `<div class="resp-row">
+      <div class="avatar">${initials}</div>
+      <div class="resp-info">
+        <div class="resp-name">${p.nome} <span class="text-xs text-muted">(${areaMap[p.area_id]||'sem área'})</span></div>
+        <div class="resp-sub"><span class="dot ${statusCls}"></span>${statusTxt}</div>
+        <div class="resp-sub">📚 ${dpN}/${discTotal} disc. · 🕐 ${spN}/${slotTotal} hor.</div>
+      </div>
+      ${p.confirmado_em?`<button class="btn btn-xs btn-ghost" onclick="resetConfirm('${p.id}')">↩ Resetar</button>`:''}
+    </div>`;
+  }).join('');
+}
+async function resetConfirm(id){
+  await db.from('professores').update({confirmado_em:null}).eq('id',id);
+  await loadStatusTab();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SOLVER — MÓDULO 1 (GAP via Branch-and-Bound)
+// ═══════════════════════════════════════════════════════════════
+async function runModule1(){
+  const btn=document.getElementById('btn-mod1');
+  const statusEl=document.getElementById('mod1-status');
+  btn.disabled=true; statusEl.textContent='⏳ Carregando dados…';
+  await loadMgrData();
+
+  const profs=CUR.profs.filter(p=>!p.is_gestor);
+  const discs=CUR.disciplinas;
+  const sid=CUR.semestre.id;
+
+  if(!profs.length||!discs.length){
+    btn.disabled=false; statusEl.textContent='⚠️ Cadastre professores e disciplinas primeiro.'; return;
+  }
+
+  // Load all preferences
+  const { data: allPrefs } = await db.from('preferencias_disciplinas')
+    .select('prof_id,disc_id,nota')
+    .in('prof_id', profs.map(p=>p.id));
+  const prefsMap={};
+  (allPrefs||[]).forEach(r=>{ if(!prefsMap[r.prof_id]) prefsMap[r.prof_id]={}; prefsMap[r.prof_id][r.disc_id]=r.nota; });
+
+  statusEl.textContent='⏳ Executando solver por área…';
+
+  // Run per area
+  const areas=CUR.areas;
+  const results=[]; // {disc_id, prof_id, satisfacao}
+  let totalSat=0;
+
+  for(const area of areas){
+    const aProfs=profs.filter(p=>p.area_id===area.id);
+    const aDiscs=discs.filter(d=>d.area_id===area.id);
+    if(!aProfs.length||!aDiscs.length) continue;
+
+    const n=aProfs.length, m=aDiscs.length;
+    const C=aProfs.map(p=>aDiscs.map(d=>(prefsMap[p.id]||{})[d.id]??3));
+    const h=aDiscs.map(d=>d.ch_semanal);
+    const cMin=aProfs.map(p=>p.ch_min);
+    const cMax=aProfs.map(p=>p.ch_max);
+
+    const res=solveGAP(C,h,cMin,cMax);
+    res.assignment.forEach((pi,j)=>{
+      if(pi>=0&&pi<n){
+        const sat=(prefsMap[aProfs[pi].id]||{})[aDiscs[j].id]??3;
+        results.push({disc_id:aDiscs[j].id, prof_id:aProfs[pi].id, satisfacao:sat});
+        totalSat+=sat;
+      }
+    });
+  }
+
+  statusEl.textContent='⏳ Salvando no banco…';
+  const { error } = await db.rpc('salvar_distribuicao_disciplinas',{
+    p_semestre_id: sid,
+    p_itens: JSON.stringify(results)
+  });
+  btn.disabled=false;
+  if(error){ statusEl.textContent='❌ '+error.message; return; }
+  statusEl.textContent=`✅ Concluído · Satisfação total: ${totalSat}`;
+  document.getElementById('btn-mod2').disabled=false;
+  document.getElementById('mod2-prereq').classList.add('hidden');
+  await loadMod1Result();
+}
+
+async function loadMod1Result(){
+  const { data } = await db.from('distribuicao_disciplinas')
+    .select('disc_id,prof_id,satisfacao')
+    .eq('semestre_id', CUR.semestre.id);
+  if(!data||!data.length){ document.getElementById('mod1-result').innerHTML=''; return; }
+
+  const profMap={}, discMap={};
+  CUR.profs.forEach(p=>profMap[p.id]=p);
+  CUR.disciplinas.forEach(d=>discMap[d.id]=d);
+  const areaMap={}; CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
+
+  // Group by professor
+  const byProf={};
+  data.forEach(r=>{
+    if(!byProf[r.prof_id]) byProf[r.prof_id]={items:[],sat:0,ch:0};
+    byProf[r.prof_id].items.push(r);
+    byProf[r.prof_id].sat+=(r.satisfacao||0);
+    byProf[r.prof_id].ch+=(discMap[r.disc_id]?.ch_semanal||0);
+  });
+
+  const totalSat=data.reduce((s,r)=>s+(r.satisfacao||0),0);
+  const maxSat=data.length*5;
+  const pct=maxSat?Math.round(totalSat/maxSat*100):0;
+
+  let html=`<div class="box ok mb-12">✅ Satisfação total: <strong>${totalSat}</strong> de ${maxSat} possíveis (${pct}%)</div>
+  <table class="result-table"><thead><tr><th>Professor</th><th>Área</th><th>Disciplinas Alocadas</th><th>CH Total</th><th>Status</th></tr></thead><tbody>`;
+
+  CUR.profs.filter(p=>!p.is_gestor).forEach(p=>{
+    const g=byProf[p.id];
+    const pills=g?g.items.map(r=>{
+      const d=discMap[r.disc_id];
+      return d?`<span class="disc-pill">${d.nome}${d.turma?' – '+d.turma:''} <span class="chip chip-${r.satisfacao||0}">${r.satisfacao||0}</span></span>`:'';
+    }).join(''):'<em style="color:#bbb">Nenhuma</em>';
+    const ch=g?g.ch:0;
+    const cls=ch<p.ch_min?'ch-err':ch>p.ch_max?'ch-warn':'ch-ok';
+    const lbl=ch<p.ch_min?'Abaixo do mín':ch>p.ch_max?'Acima do máx':'OK';
+    html+=`<tr><td><strong>${p.nome}</strong></td><td>${areaMap[p.area_id]||'—'}</td>
+      <td>${pills}</td><td>${ch}h / ${p.ch_min}–${p.ch_max}h</td>
+      <td><span class="${cls}">${lbl}</span></td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('mod1-result').innerHTML=html;
+  document.getElementById('btn-mod2').disabled=false;
+  document.getElementById('mod2-prereq').classList.add('hidden');
+}
+
+function solveGAP(C,h,cMin,cMax){
+  const n=C.length, m=C[0]?.length||0;
+  if(!m) return {assignment:[],value:0};
+  const greedy=greedyGAP(C,h,cMin,cMax);
+  let bestVal=greedy.value, bestAsgn=greedy.assignment.slice();
+  const load=new Array(n).fill(0);
+  const asgn=new Array(m).fill(-1);
+  const discOrder=Array.from({length:m},(_,j)=>j)
+    .sort((a,b)=>cntElig(C,h,cMax,a)-cntElig(C,h,cMax,b));
+  const sfx=new Array(m+1).fill(0);
+  for(let k=m-1;k>=0;k--) sfx[k]=sfx[k+1]+Math.max(...C.map(row=>row[discOrder[k]]));
+  const deadline=Date.now()+14000;
+  let timed=false;
+  function bb(k,val){
+    if(timed||Date.now()>deadline){timed=true;return;}
+    if(k===m){
+      for(let i=0;i<n;i++) if(load[i]<cMin[i]) return;
+      if(val>bestVal){bestVal=val;bestAsgn=asgn.slice();}
+      return;
+    }
+    if(val+sfx[k]<=bestVal) return;
+    const j=discOrder[k];
+    const order=Array.from({length:n},(_,i)=>i)
+      .filter(i=>load[i]+h[j]<=cMax[i])
+      .sort((a,b)=>C[b][j]-C[a][j]);
+    for(const i of order){
+      asgn[j]=i; load[i]+=h[j];
+      bb(k+1,val+C[i][j]);
+      load[i]-=h[j]; asgn[j]=-1;
+      if(timed) return;
+    }
+  }
+  bb(0,0);
+  return {assignment:bestAsgn,value:bestVal,timedOut:timed};
+}
+function greedyGAP(C,h,cMin,cMax){
+  const n=C.length,m=C[0]?.length||0;
+  const asgn=new Array(m).fill(-1);
+  const load=new Array(n).fill(0);
+  const order=Array.from({length:m},(_,j)=>j).sort((a,b)=>cntElig(C,h,cMax,a)-cntElig(C,h,cMax,b));
+  for(const j of order){
+    let bi=-1,bp=-1;
+    for(let i=0;i<n;i++) if(load[i]+h[j]<=cMax[i]&&C[i][j]>bp){bp=C[i][j];bi=i;}
+    if(bi<0) for(let i=0;i<n;i++) if(cMax[i]-load[i]>=h[j]){bi=i;break;}
+    if(bi>=0){asgn[j]=bi;load[bi]+=h[j];}
+  }
+  return {assignment:asgn, value:asgn.reduce((s,i,j)=>s+(i>=0?C[i][j]:0),0)};
+}
+function cntElig(C,h,cMax,j){
+  return C.reduce((s,row,i)=>s+(h[j]<=cMax[i]?1:0),0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SOLVER — MÓDULO 2 (Schedule assignment, per professor)
+// ═══════════════════════════════════════════════════════════════
+async function runModule2(){
+  const btn=document.getElementById('btn-mod2');
+  const statusEl=document.getElementById('mod2-status');
+  btn.disabled=true; statusEl.textContent='⏳ Carregando dados…';
+  await loadMgrData();
+
+  const sid=CUR.semestre.id;
+  const { data: distDisc } = await db.from('distribuicao_disciplinas')
+    .select('disc_id,prof_id').eq('semestre_id',sid);
+  if(!distDisc||!distDisc.length){
+    btn.disabled=false; statusEl.textContent='⚠️ Execute o Módulo 1 primeiro.'; return;
+  }
+
+  // Load slot preferences for all professors
+  const profIds=[...new Set(distDisc.map(r=>r.prof_id))];
+  const { data: allSlotPrefs } = await db.from('preferencias_horarios')
+    .select('prof_id,horario_id,nota').in('prof_id',profIds);
+  const slotPrefsMap={};
+  (allSlotPrefs||[]).forEach(r=>{
+    if(!slotPrefsMap[r.prof_id]) slotPrefsMap[r.prof_id]={};
+    slotPrefsMap[r.prof_id][r.horario_id]=r.nota;
+  });
+
+  const discMap={}, slotMap={};
+  CUR.disciplinas.forEach(d=>discMap[d.id]=d);
+  CUR.horarios.forEach(h=>slotMap[h.id]=h);
+  const hrsSlot=CUR.semestre.hrs_por_faixa||2;
+
+  statusEl.textContent='⏳ Executando solver de horários…';
+
+  // Group assignments by professor
+  const byProf={};
+  distDisc.forEach(r=>{
+    if(!byProf[r.prof_id]) byProf[r.prof_id]=[];
+    byProf[r.prof_id].push(r.disc_id);
+  });
+
+  const results=[]; // {disc_id, horario_id}
+
+  for(const [profId, discIds] of Object.entries(byProf)){
+    const profSlotPrefs=slotPrefsMap[profId]||{};
+    const usedSlots=new Set(); // slots already allocated to this prof
+
+    for(const discId of discIds){
+      const disc=discMap[discId]; if(!disc) continue;
+      const needed=Math.ceil(disc.ch_semanal/hrsSlot);
+
+      // Filter slots by turno compatibility
+      const compatSlots=CUR.horarios.filter(h=>{
+        if(disc.turno==='ambos') return true;
+        return h.turno===disc.turno;
+      });
+
+      // Sort by professor's preference (desc), 0 last
+      const sorted=compatSlots
+        .filter(h=>!usedSlots.has(h.id))
+        .sort((a,b)=>{
+          const pa=profSlotPrefs[a.id]??3;
+          const pb=profSlotPrefs[b.id]??3;
+          if(pb!==pa) return pb-pa;
+          return DAYS.indexOf(a.dia)-DAYS.indexOf(b.dia)||a.inicio.localeCompare(b.inicio);
+        });
+
+      let assigned=0;
+      for(const slot of sorted){
+        if(assigned>=needed) break;
+        results.push({disc_id:discId, horario_id:slot.id});
+        usedSlots.add(slot.id);
+        assigned++;
+      }
+    }
+  }
+
+  statusEl.textContent='⏳ Salvando no banco…';
+  const { error } = await db.rpc('salvar_distribuicao_horarios',{
+    p_semestre_id: sid,
+    p_itens: JSON.stringify(results)
+  });
+  btn.disabled=false;
+  if(error){ statusEl.textContent='❌ '+error.message; return; }
+  statusEl.textContent=`✅ Concluído · ${results.length} alocações geradas`;
+  await loadMod2Result();
+}
+
+async function loadMod2Result(){
+  const { data: distDisc } = await db.from('distribuicao_disciplinas')
+    .select('disc_id,prof_id').eq('semestre_id',CUR.semestre.id);
+  const { data: distHor } = await db.from('distribuicao_horarios')
+    .select('disc_id,horario_id').eq('semestre_id',CUR.semestre.id);
+  if(!distHor||!distHor.length){ document.getElementById('mod2-result').innerHTML=''; return; }
+
+  const profMap={},discMap={},slotMap={};
+  CUR.profs.forEach(p=>profMap[p.id]=p);
+  CUR.disciplinas.forEach(d=>discMap[d.id]=d);
+  CUR.horarios.forEach(h=>slotMap[h.id]=h);
+
+  // disc → prof
+  const discProfMap={};
+  (distDisc||[]).forEach(r=>discProfMap[r.disc_id]=r.prof_id);
+
+  // slot → [{disc, prof}]
+  const slotContent={};
+  (distHor||[]).forEach(r=>{
+    if(!slotContent[r.horario_id]) slotContent[r.horario_id]=[];
+    const d=discMap[r.disc_id];
+    const pi=discProfMap[r.disc_id];
+    const p=profMap[pi];
+    if(d&&p) slotContent[r.horario_id].push({disc:`${d.nome}${d.turma?' ('+d.turma+')':''}`,prof:p.nome});
+  });
+
+  const byDay={};
+  DAYS.forEach(d=>byDay[d]=[]);
+  CUR.horarios.forEach(h=>{ if(!byDay[h.dia]) byDay[h.dia]=[]; byDay[h.dia].push(h); });
+  const activeDays=DAYS.filter(d=>byDay[d].length>0);
+  const times=[...new Set(CUR.horarios.map(h=>h.inicio))].sort();
+
+  let html=`<div class="sched-wrap"><table class="sched-grid"><thead><tr><th>Horário</th>`;
+  activeDays.forEach(d=>html+=`<th>${d}</th>`);
+  html+='</tr></thead><tbody>';
+  times.forEach(t=>{
+    const fim=CUR.horarios.find(h=>h.inicio===t)?.fim||'';
+    html+=`<tr><td class="time-h">${t}<br><span style="font-weight:400;color:#aaa;font-size:.68rem">${fim}</span></td>`;
+    activeDays.forEach(d=>{
+      const slot=byDay[d].find(h=>h.inicio===t);
+      if(slot){
+        const items=slotContent[slot.id]||[];
+        html+=`<td>${items.length
+          ?items.map(it=>`<div class="sched-cell"><div class="sc-prof">👤 ${it.prof}</div><div class="sc-disc">${it.disc}</div></div>`).join('')
+          :'<span style="color:#ddd;font-size:.7rem">—</span>'
+        }</td>`;
+      } else html+='<td style="background:#f8f8f8"></td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  document.getElementById('mod2-result').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+(async()=>{
+  // Check if Supabase credentials are configured
+  if(SUPABASE_URL.includes('SEU_PROJETO')){
+    showScreen('s-login');
+    document.getElementById('s-login').innerHTML=`<div class="center-card">
+      <div class="card">
+        <div class="logo-area"><span class="logo-icon">⚙️</span>
+          <div class="logo-title">Configuração necessária</div></div>
+        <div class="box warn">Edite o arquivo <code>index.html</code> e substitua <code>SUPABASE_URL</code> e <code>SUPABASE_ANON</code> pelas credenciais do seu projeto Supabase antes de publicar.</div>
+        <p class="text-sm text-muted mt-8">Consulte o arquivo <strong>INSTRUCOES.md</strong> para o passo a passo completo.</p>
+      </div></div>`;
+    return;
+  }
+  // Restore existing session
+  const { data:{ session } } = await db.auth.getSession();
+  if(session){ CUR.user=session.user; await afterLogin(); }
+  else showScreen('s-login');
+})();
+</script>
+</body>
+</html>
