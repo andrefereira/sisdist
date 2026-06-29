@@ -649,7 +649,7 @@ function showTab(id){
   document.getElementById('tb-'+id).classList.add('active');
   // Lazy load
   if(id==='t-status') loadStatusTab();
-  if(id==='t-areas') renderAreas();
+  if(id==='t-areas'){ renderAreas(); renderProfs(); populateAreaSelects(); }
   if(id==='t-disc') renderDiscs();
   if(id==='t-hor') renderSlots();
   if(id==='t-mod1' && CUR.semestre) loadMod1Result();
