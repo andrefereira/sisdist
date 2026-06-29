@@ -712,10 +712,10 @@ async function logout(){
 
 // Auth state listener
 db.auth.onAuthStateChange(async (event, session) => {
-  if(event==='SIGNED_IN' && session){
+  if((event==='SIGNED_IN' || event==='INITIAL_SESSION') && session){
     CUR.user = session.user;
     await afterLogin();
-  } else if(event==='SIGNED_OUT' || !session){
+  } else if(event==='SIGNED_OUT' || (event==='INITIAL_SESSION' && !session)){
     showScreen('s-login');
   }
 });
