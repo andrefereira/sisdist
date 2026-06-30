@@ -1349,7 +1349,7 @@ async function runModule1(){
   statusEl.textContent='⏳ Salvando no banco…';
   const { error } = await db.rpc('salvar_distribuicao_disciplinas',{
     p_semestre_id: sid,
-    p_itens: JSON.stringify(results)
+    p_itens: results
   });
   btn.disabled=false;
   if(error){ statusEl.textContent='❌ '+error.message; return; }
@@ -1536,7 +1536,7 @@ async function runModule2(){
   statusEl.textContent='⏳ Salvando no banco…';
   const { error } = await db.rpc('salvar_distribuicao_horarios',{
     p_semestre_id: sid,
-    p_itens: JSON.stringify(results)
+    p_itens: results
   });
   btn.disabled=false;
   if(error){ statusEl.textContent='❌ '+error.message; return; }
