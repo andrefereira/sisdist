@@ -1409,7 +1409,12 @@ function solveGAP(C,h,cMin,cMax){
   const n=C.length, m=C[0]?.length||0;
   if(!m) return {assignment:[],value:0};
   const greedy=greedyGAP(C,h,cMin,cMax);
-  let bestVal=greedy.value, bestAsgn=greedy.assignment.slice();
+  // Verifica se o greedy é factível (respeita ch_min de todos os professores)
+  const greedyLoad=new Array(n).fill(0);
+  greedy.assignment.forEach((i,j)=>{if(i>=0) greedyLoad[i]+=h[j];});
+  const greedyFeasible=greedyLoad.every((l,i)=>l>=cMin[i]);
+  let bestVal=greedyFeasible?greedy.value:-1;
+  let bestAsgn=greedyFeasible?greedy.assignment.slice():new Array(m).fill(-1);
   const load=new Array(n).fill(0);
   const asgn=new Array(m).fill(-1);
   const discOrder=Array.from({length:m},(_,j)=>j)
@@ -1444,10 +1449,18 @@ function greedyGAP(C,h,cMin,cMax){
   const n=C.length,m=C[0]?.length||0;
   const asgn=new Array(m).fill(-1);
   const load=new Array(n).fill(0);
+  // Ordena disciplinas: menos elegíveis primeiro (mais difíceis de alocar)
   const order=Array.from({length:m},(_,j)=>j).sort((a,b)=>cntElig(C,h,cMax,a)-cntElig(C,h,cMax,b));
   for(const j of order){
     let bi=-1,bp=-1;
-    for(let i=0;i<n;i++) if(load[i]+h[j]<=cMax[i]&&C[i][j]>bp){bp=C[i][j];bi=i;}
+    // Prioriza professores abaixo do ch_min para tentar atingir factibilidade
+    for(let i=0;i<n;i++){
+      if(load[i]+h[j]>cMax[i]) continue;
+      // Boost para quem ainda não atingiu ch_min
+      const needsMore=load[i]<cMin[i];
+      const score=C[i][j]+(needsMore?100:0);
+      if(score>bp){bp=score;bi=i;}
+    }
     if(bi<0) for(let i=0;i<n;i++) if(cMax[i]-load[i]>=h[j]){bi=i;break;}
     if(bi>=0){asgn[j]=bi;load[bi]+=h[j];}
   }
