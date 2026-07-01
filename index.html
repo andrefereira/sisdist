@@ -305,6 +305,12 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
     <button class="btn-exit hidden" id="btn-back-mgr" onclick="openManagerScreen()" style="background:rgba(255,255,255,.25)">← Painel</button>
     <button class="btn-exit" onclick="logout()">Sair</button>
   </div>
+  <!-- Banner: gestor editando preferências de outro professor -->
+  <div id="prof-edit-banner" class="hidden" style="background:#fff3e0;border-left:5px solid #e65100;padding:12px 24px;display:flex;gap:10px;align-items:center;font-size:.87rem;color:#bf360c">
+    <span style="font-size:1.1rem">⚠️</span>
+    <span>Você está editando as preferências de <strong id="prof-edit-name"></strong>. <em>Não edite as preferências do professor sem o consentimento dele.</em></span>
+  </div>
+
   <div style="max-width:860px;margin:0 auto;padding:24px">
     <!-- Step nav -->
     <div class="step-nav">
@@ -622,6 +628,7 @@ let CUR = {           // current user session data
   user: null,
   prof: null,         // row from professores
   isGestor: false,
+  gestorProf: null,   // saved when gestor is editing another prof's prefs
   semestre: null,     // active semestre row
   areas: [],
   profs: [],
@@ -813,6 +820,10 @@ async function openProfScreen(){
   document.getElementById('prof-name-top').textContent = CUR.prof.nome;
   // Show "← Painel" only when gestor is viewing as professor
   document.getElementById('btn-back-mgr').classList.toggle('hidden', !CUR.isGestor);
+  // Banner: avisa quando gestor está editando prefs de outro professor
+  const editingOther = CUR.isGestor && CUR.gestorProf && CUR.gestorProf.id !== CUR.prof.id;
+  document.getElementById('prof-edit-banner').classList.toggle('hidden', !editingOther);
+  if(editingOther) document.getElementById('prof-edit-name').textContent = CUR.prof.nome;
   setStep(1);
   showScreen('s-professor');
   await buildDiscTable();
@@ -1010,6 +1021,11 @@ function ratingBtns(sel=3, small=false){
 // MANAGER SCREEN
 // ═══════════════════════════════════════════════════════════════
 function openManagerScreen(){
+  // Se o gestor estava editando as prefs de outro professor, restaura o seu próprio perfil
+  if(CUR.gestorProf){
+    CUR.prof = CUR.gestorProf;
+    CUR.gestorProf = null;
+  }
   document.getElementById('mgr-name-top').textContent = CUR.prof.nome;
   document.getElementById('mgr-sem-top').textContent = CUR.semestre
     ? `${CUR.semestre.inst} · ${CUR.semestre.nome}` : 'SisDist';
@@ -1285,13 +1301,38 @@ async function loadStatusTab(){
         <div class="resp-sub"><span class="dot ${statusCls}"></span>${statusTxt}</div>
         <div class="resp-sub">📚 ${dpN}/${discTotal} disc. · 🕐 ${spN}/${slotTotal} hor.</div>
       </div>
-      ${p.confirmado_em?`<button class="btn btn-xs btn-ghost" onclick="resetConfirm('${p.id}')">↩ Resetar</button>`:''}
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn btn-xs btn-ghost" onclick="editProfPrefs('${p.id}')" title="Editar preferências deste professor">✏️ Editar</button>
+        ${p.confirmado_em?`<button class="btn btn-xs btn-ghost" onclick="resetConfirm('${p.id}')">↩ Resetar</button>`:''}
+      </div>
     </div>`;
   }).join('');
 }
 async function resetConfirm(id){
   await db.from('professores').update({confirmado_em:null}).eq('id',id);
   await loadStatusTab();
+}
+
+// Edição de preferências de professor pelo gestor
+function editProfPrefs(profId){
+  const p = CUR.profs.find(x=>x.id===profId);
+  if(!p){ toast('Professor não encontrado.','err'); return; }
+  showModal(
+    '⚠️ Atenção',
+    `Você está prestes a editar as preferências de <strong>${p.nome}</strong>.<br><br>
+     <span style="color:var(--warn);font-weight:600">Não edite as preferências do professor sem o consentimento dele.</span><br><br>
+     Deseja continuar?`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+     <button class="btn btn-primary" onclick="closeModal();_doEditProfPrefs('${profId}')">Continuar</button>`
+  );
+}
+async function _doEditProfPrefs(profId){
+  const p = CUR.profs.find(x=>x.id===profId);
+  if(!p) return;
+  CUR.gestorProf = CUR.prof;   // salva o perfil do próprio gestor
+  CUR.prof = p;                 // troca para o professor alvo
+  await loadProfData();
+  await openProfScreen();
 }
 
 // ═══════════════════════════════════════════════════════════════
