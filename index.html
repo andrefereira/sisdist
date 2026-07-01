@@ -1424,23 +1424,50 @@ async function loadMod1Result(){
   const maxSat=data.length*5;
   const pct=maxSat?Math.round(totalSat/maxSat*100):0;
 
-  let html=`<div class="box ok mb-12">✅ Satisfação total: <strong>${totalSat}</strong> de ${maxSat} possíveis (${pct}%)</div>
-  <table class="result-table"><thead><tr><th>Professor</th><th>Área</th><th>Disciplinas Alocadas</th><th>CH Total</th><th>Status</th></tr></thead><tbody>`;
+  let html=`<div class="box ok mb-12">✅ Satisfação total: <strong>${totalSat}</strong> de ${maxSat} possíveis (${pct}%)</div>`;
 
-  CUR.profs.filter(p=>p.area_id).forEach(p=>{
-    const g=byProf[p.id];
-    const pills=g?g.items.map(r=>{
-      const d=discMap[r.disc_id];
-      return d?`<span class="disc-pill">${d.nome}${d.turma?' – '+d.turma:''} <span class="chip chip-${r.satisfacao||0}">${r.satisfacao||0}</span></span>`:'';
-    }).join(''):'<em style="color:#bbb">Nenhuma</em>';
-    const ch=g?g.ch:0;
-    const cls=ch<p.ch_min?'ch-err':ch>p.ch_max?'ch-warn':'ch-ok';
-    const lbl=ch<p.ch_min?'Abaixo do mín':ch>p.ch_max?'Acima do máx':'OK';
-    html+=`<tr><td><strong>${p.nome}</strong></td><td>${areaMap[p.area_id]||'—'}</td>
-      <td>${pills}</td><td>${ch}h / ${p.ch_min}–${p.ch_max}h</td>
-      <td><span class="${cls}">${lbl}</span></td></tr>`;
+  // Renderiza uma seção por área
+  CUR.areas.forEach(area=>{
+    const profsArea=CUR.profs.filter(p=>p.area_id===area.id);
+    if(!profsArea.length) return;
+
+    const satArea=profsArea.reduce((s,p)=>{
+      const g=byProf[p.id]; return s+(g?g.sat:0);
+    },0);
+    const maxArea=profsArea.reduce((s,p)=>{
+      const g=byProf[p.id]; return s+(g?g.items.length*5:0);
+    },0);
+    const pctArea=maxArea?Math.round(satArea/maxArea*100):0;
+
+    html+=`<div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <h3 style="color:var(--green);margin:0">🏫 ${area.nome}</h3>
+        <span style="font-size:.8rem;color:var(--text2);background:var(--green-l);padding:2px 10px;border-radius:99px">Satisfação: ${satArea}/${maxArea} (${pctArea}%)</span>
+      </div>
+      <table class="result-table">
+        <thead><tr><th>Professor</th><th>Disciplinas Alocadas</th><th>CH Total</th><th>Status</th></tr></thead>
+        <tbody>`;
+
+    profsArea.forEach(p=>{
+      const g=byProf[p.id];
+      const pills=g?g.items.map(r=>{
+        const d=discMap[r.disc_id];
+        return d?`<span class="disc-pill">${d.nome}${d.turma?' – '+d.turma:''} <span class="chip chip-${r.satisfacao||0}">${r.satisfacao||0}</span></span>`:'';
+      }).join(''):'<em style="color:#bbb">Nenhuma</em>';
+      const ch=g?g.ch:0;
+      const cls=ch<p.ch_min?'ch-err':ch>p.ch_max?'ch-warn':'ch-ok';
+      const lbl=ch<p.ch_min?'Abaixo do mín':ch>p.ch_max?'Acima do máx':'OK';
+      html+=`<tr>
+        <td><strong>${p.nome}</strong></td>
+        <td>${pills}</td>
+        <td>${ch}h / ${p.ch_min}–${p.ch_max}h</td>
+        <td><span class="${cls}">${lbl}</span></td>
+      </tr>`;
+    });
+
+    html+='</tbody></table></div>';
   });
-  html+='</tbody></table>';
+
   document.getElementById('mod1-result').innerHTML=html;
   document.getElementById('btn-mod2').disabled=false;
   document.getElementById('mod2-prereq').classList.add('hidden');
