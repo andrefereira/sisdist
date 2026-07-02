@@ -504,7 +504,10 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
           </div>
           <div class="inline-form hidden" id="fa-disc">
             <div class="fg"><label>Disciplina</label><input type="text" id="nd-nome" placeholder="Nome da disciplina"></div>
-            <div class="fg"><label>Turma</label><input type="text" id="nd-turma" placeholder="Ex: TINF21A"></div>
+            <div class="fg"><label>Turma</label>
+              <input type="text" id="nd-turma" placeholder="Ex: TINF21A" list="turmas-list" autocomplete="off">
+              <datalist id="turmas-list"></datalist>
+            </div>
             <div class="fg"><label>CH Semanal</label><input type="number" id="nd-ch" value="4" min="1" max="20" style="width:70px"></div>
             <div class="fg"><label>Área</label><select id="nd-area"><option value="">Selecione</option></select></div>
             <div class="fg"><label>Turno</label>
@@ -1222,7 +1225,7 @@ function editDiscModal(id){
   const inp='padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;width:100%';
   showModal('Editar Disciplina',
     `<div class="form-group"><label>Disciplina</label><input id="ed-nome" value="${d.nome}" style="${inp}"></div>
-     <div class="form-group"><label>Turma</label><input id="ed-turma" value="${d.turma||''}" style="${inp}"></div>
+     <div class="form-group"><label>Turma</label><input id="ed-turma" value="${d.turma||''}" list="turmas-list" autocomplete="off" style="${inp}"></div>
      <div class="form-row">
        <div class="form-group"><label>CH Semanal</label><input type="number" id="ed-ch" value="${d.ch_semanal}" min="1" max="20" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
        <div class="form-group"><label>Turno</label>
@@ -1268,6 +1271,12 @@ async function delDisc(id){
 function renderDiscs(){
   const areaFilter=document.getElementById('disc-filter-area')?.value||'';
   const areaMap={}; CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
+  // Atualiza o datalist de turmas com os valores únicos já cadastrados
+  const dl=document.getElementById('turmas-list');
+  if(dl){
+    const turmas=[...new Set(CUR.disciplinas.map(d=>d.turma).filter(Boolean))].sort();
+    dl.innerHTML=turmas.map(t=>`<option value="${t}">`).join('');
+  }
   const list=areaFilter ? CUR.disciplinas.filter(d=>d.area_id===areaFilter) : CUR.disciplinas;
   const tb=document.getElementById('disc-tbody');
   if(!list.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">Nenhuma disciplina.</td></tr>'; return; }
