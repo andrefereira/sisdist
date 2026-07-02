@@ -1117,11 +1117,13 @@ async function switchSemestre(id){
   CUR.semestre=s;
   await loadMgrData();
   renderSemSwitcher();
-  // Atualiza form de configuração
+  // Atualiza form de configuração do semestre
   document.getElementById('cfg-inst').value=s.inst||'';
   document.getElementById('cfg-sem').value=s.nome||'';
   document.getElementById('cfg-hrs').value=s.hrs_por_faixa||2;
-  showTab('t-sem');
+  // Re-renderiza a aba ativa para mostrar os dados do semestre selecionado
+  const activeTab=document.querySelector('.tab-panel.active')?.id||'t-areas';
+  showTab(activeTab);
   updateBadgeStatus();
   toast(`Visualizando: ${s.inst} · ${s.nome}`);
 }
