@@ -914,46 +914,54 @@ async function buildSlotGrid(){
   const wrap=document.getElementById('ps2-table-wrap');
   const empty=document.getElementById('ps2-empty');
   load.classList.remove('hidden'); wrap.classList.add('hidden'); empty.classList.add('hidden');
+  try {
+    if(!CUR.semestre) throw new Error('Semestre não carregado.');
+    const { data: freshSlots, error: e1 } = await db.from('horarios')
+      .select('*').eq('semestre_id', CUR.semestre.id).order('dia').order('inicio');
+    if(e1) throw e1;
+    CUR.horarios = freshSlots||[];
 
-  // Sempre busca faixas frescas do banco (evita cache desatualizado)
-  const { data: freshSlots } = await db.from('horarios')
-    .select('*').eq('semestre_id', CUR.semestre.id).order('dia').order('inicio');
-  CUR.horarios = freshSlots||[];
+    const { data: saved, error: e2 } = await db.from('preferencias_horarios')
+      .select('horario_id,nota').eq('prof_id', CUR.prof.id);
+    if(e2) throw e2;
+    const prefsMap={};
+    (saved||[]).forEach(r=>prefsMap[r.horario_id]=r.nota);
 
-  const { data: saved } = await db.from('preferencias_horarios')
-    .select('horario_id,nota').eq('prof_id',CUR.prof.id);
-  const prefsMap={};
-  (saved||[]).forEach(r=>prefsMap[r.horario_id]=r.nota);
+    load.classList.add('hidden');
+    if(!CUR.horarios.length){ empty.classList.remove('hidden'); return; }
+    wrap.classList.remove('hidden');
 
-  load.classList.add('hidden');
-  if(!CUR.horarios.length){ empty.classList.remove('hidden'); return; }
-  wrap.classList.remove('hidden');
+    const byDay={};
+    DAYS.forEach(d=>byDay[d]=[]);
+    CUR.horarios.forEach(h=>{ if(!byDay[h.dia]) byDay[h.dia]=[]; byDay[h.dia].push(h); });
+    const activeDays=DAYS.filter(d=>byDay[d].length>0);
+    const times=[...new Set(CUR.horarios.map(h=>h.inicio))].sort();
 
-  const byDay={};
-  DAYS.forEach(d=>byDay[d]=[]);
-  CUR.horarios.forEach(h=>{ if(!byDay[h.dia])byDay[h.dia]=[]; byDay[h.dia].push(h); });
-  const activeDays=DAYS.filter(d=>byDay[d].length>0);
-  const times=[...new Set(CUR.horarios.map(h=>h.inicio))].sort();
-
-  let html='<thead><tr><th>Horário</th>';
-  activeDays.forEach(d=>html+=`<th>${d}</th>`);
-  html+='</tr></thead><tbody>';
-  times.forEach(t=>{
-    const fim=CUR.horarios.find(h=>h.inicio===t)?.fim||'';
-    html+=`<tr><td class="time-col">${t}<br><span style="font-weight:400;color:#aaa;font-size:.7rem">${fim}</span></td>`;
-    activeDays.forEach(d=>{
-      const slot=byDay[d].find(h=>h.inicio===t);
-      if(slot){
-        const nota=prefsMap[slot.id]??3;
-        html+=`<td><div class="rating-group" data-slot="${slot.id}" style="justify-content:center">${ratingBtns(nota,true)}</div>
-          <div class="save-dot" id="dot-s-${slot.id}" style="margin:0 auto"></div></td>`;
-      } else html+='<td style="background:#f8f8f8"></td>';
+    let html='<thead><tr><th>Horário</th>';
+    activeDays.forEach(d=>html+=`<th>${d}</th>`);
+    html+='</tr></thead><tbody>';
+    times.forEach(t=>{
+      const fim=CUR.horarios.find(h=>h.inicio===t)?.fim||'';
+      html+=`<tr><td class="time-col">${t}<br><span style="font-weight:400;color:#aaa;font-size:.7rem">${fim}</span></td>`;
+      activeDays.forEach(d=>{
+        const slot=byDay[d].find(h=>h.inicio===t);
+        if(slot){
+          const nota=prefsMap[slot.id]??3;
+          html+=`<td><div class="rating-group" data-slot="${slot.id}" style="justify-content:center">${ratingBtns(nota,true)}</div>
+            <div class="save-dot" id="dot-s-${slot.id}" style="margin:0 auto"></div></td>`;
+        } else html+='<td style="background:#f8f8f8"></td>';
+      });
+      html+='</tr>';
     });
-    html+='</tr>';
-  });
-  html+='</tbody>';
-  document.getElementById('ps2-grid').innerHTML=html;
-  document.querySelectorAll('#ps2-grid .rb').forEach(b=>b.addEventListener('click',onSlotRate));
+    html+='</tbody>';
+    document.getElementById('ps2-grid').innerHTML=html;
+    document.querySelectorAll('#ps2-grid .rb').forEach(b=>b.addEventListener('click',onSlotRate));
+  } catch(err) {
+    load.classList.add('hidden');
+    empty.classList.remove('hidden');
+    empty.textContent='Erro ao carregar horários: '+(err.message||err);
+    console.error('buildSlotGrid error:', err);
+  }
 }
 
 async function onSlotRate(e){
