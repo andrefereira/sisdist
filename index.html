@@ -391,11 +391,17 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
 <div id="s-manager" class="screen">
   <div class="topbar">
     <span class="logo-t">SisDist</span><span class="sep">|</span>
-    <span class="title-t" id="mgr-sem-top"></span>
+    <select id="sem-switcher" onchange="switchSemestre(this.value)"
+      style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:6px;padding:4px 10px;font-size:.88rem;cursor:pointer;max-width:220px"></select>
     <div class="spacer"></div>
     <span class="user-t" id="mgr-name-top"></span>
     <button class="btn-exit" id="btn-mgr-prof-view" onclick="switchToProf()" style="background:rgba(255,255,255,.2)">👤 Minhas Preferências</button>
     <button class="btn-exit" onclick="logout()">Sair</button>
+  </div>
+  <!-- Banner: semestre inativo -->
+  <div id="sem-inativo-banner" class="hidden" style="background:#fff3e0;border-bottom:2px solid #e65100;padding:8px 24px;display:flex;align-items:center;gap:12px;font-size:.87rem;color:#bf360c">
+    <span>⚠️ Você está visualizando um semestre inativo.</span>
+    <button class="btn btn-xs" onclick="switchSemestre(CUR.semestreAtivo?.id)" style="background:#e65100;color:#fff;border:none">Voltar ao ativo</button>
   </div>
   <div class="mgr-layout">
     <!-- Sidebar -->
@@ -437,6 +443,10 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
               <div class="form-group"><label>Nome</label><input type="text" id="new-sem-nome" placeholder="Ex: 2025/2"></div>
               <div class="form-group"><label>Horas por faixa</label><input type="number" id="new-sem-hrs" value="2" min="1" max="4"></div>
             </div>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:.88rem;cursor:pointer">
+              <input type="checkbox" id="new-sem-copiar" style="width:15px;height:15px">
+              Copiar áreas, disciplinas e faixas horárias do semestre atual
+            </label>
             <button class="btn btn-secondary btn-sm" onclick="createNewSem()">+ Criar novo semestre</button>
           </div>
         </div>
@@ -638,7 +648,9 @@ let CUR = {           // current user session data
   prof: null,         // row from professores
   isGestor: false,
   gestorProf: null,   // saved when gestor is editing another prof's prefs
-  semestre: null,     // active semestre row
+  semestre: null,     // semestre being viewed
+  semestreAtivo: null,// truly active semestre (ativo=true)
+  semestres: [],      // all semesters for navigation
   areas: [],
   profs: [],
   disciplinas: [],
@@ -757,9 +769,12 @@ async function afterLogin(){
     CUR.prof = data;
     CUR.isGestor = data.is_gestor;
 
-    // Load active semestre
-    const { data: sem } = await db.from('semestres').select('*').eq('ativo',true).order('created_at',{ascending:false}).limit(1).single();
+    // Load all semestres + active one
+    const { data: allSems } = await db.from('semestres').select('*').order('created_at',{ascending:false});
+    CUR.semestres = allSems||[];
+    const sem = CUR.semestres.find(s=>s.ativo) || CUR.semestres[0] || null;
     CUR.semestre = sem;
+    CUR.semestreAtivo = sem;
 
     if(CUR.isGestor){
       await loadMgrData();
@@ -1049,8 +1064,7 @@ function openManagerScreen(){
     CUR.gestorProf = null;
   }
   document.getElementById('mgr-name-top').textContent = CUR.prof.nome;
-  document.getElementById('mgr-sem-top').textContent = CUR.semestre
-    ? `${CUR.semestre.inst} · ${CUR.semestre.nome}` : 'SisDist';
+  renderSemSwitcher();
   // Only show professor-view button if gestor has an area (can participate as professor)
   document.getElementById('btn-mgr-prof-view').classList.toggle('hidden', !CUR.prof.area_id);
   // Populate semestre form
@@ -1086,24 +1100,88 @@ async function saveSemConfig(){
   toast('Configurações salvas!');
 }
 
+function renderSemSwitcher(){
+  const sel=document.getElementById('sem-switcher');
+  if(!sel) return;
+  sel.innerHTML=CUR.semestres.map(s=>
+    `<option value="${s.id}"${s.id===CUR.semestre?.id?' selected':''}>${s.inst} · ${s.nome}${s.ativo?' ✓':''}</option>`
+  ).join('');
+  const inativo = CUR.semestre && !CUR.semestre.ativo;
+  document.getElementById('sem-inativo-banner').classList.toggle('hidden', !inativo);
+}
+
+async function switchSemestre(id){
+  if(!id) return;
+  const s=CUR.semestres.find(x=>x.id===id);
+  if(!s || s.id===CUR.semestre?.id) return;
+  CUR.semestre=s;
+  await loadMgrData();
+  renderSemSwitcher();
+  // Atualiza form de configuração
+  document.getElementById('cfg-inst').value=s.inst||'';
+  document.getElementById('cfg-sem').value=s.nome||'';
+  document.getElementById('cfg-hrs').value=s.hrs_por_faixa||2;
+  showTab('t-sem');
+  updateBadgeStatus();
+  toast(`Visualizando: ${s.inst} · ${s.nome}`);
+}
+
 async function createNewSem(){
   const nome=document.getElementById('new-sem-nome').value.trim();
   const hrs=parseFloat(document.getElementById('new-sem-hrs').value)||2;
+  const copiar=document.getElementById('new-sem-copiar').checked;
   if(!nome){ toast('Informe o nome do semestre.','err'); return; }
+  const prevSemId=CUR.semestre?.id;
   // Deactivate current
-  await db.from('semestres').update({ativo:false}).eq('id',CUR.semestre?.id||'');
+  await db.from('semestres').update({ativo:false}).eq('id',prevSemId||'');
   const { data, error } = await db.from('semestres').insert(
     {nome, inst:CUR.semestre?.inst||'IFTM', ativo:true, hrs_por_faixa:hrs}
   ).select().single();
   if(error){ toast(error.message,'err'); return; }
+  // Reload semestres list
+  const { data: allSems } = await db.from('semestres').select('*').order('created_at',{ascending:false});
+  CUR.semestres=allSems||[];
   CUR.semestre=data;
+  CUR.semestreAtivo=data;
+  if(copiar && prevSemId){
+    toast('Copiando dados do semestre anterior…');
+    await copyFromSemestre(prevSemId, data.id);
+  }
   await loadMgrData();
   document.getElementById('new-sem-nome').value='';
+  document.getElementById('new-sem-copiar').checked=false;
   document.getElementById('cfg-inst').value=data.inst;
   document.getElementById('cfg-sem').value=data.nome;
   document.getElementById('cfg-hrs').value=data.hrs_por_faixa;
-  document.getElementById('mgr-sem-top').textContent=`${data.inst} · ${data.nome}`;
+  renderSemSwitcher();
+  updateBadgeStatus();
   toast('Novo semestre criado e ativado!');
+}
+
+async function copyFromSemestre(fromId, toId){
+  // 1. Áreas
+  const { data: oldAreas } = await db.from('areas').select('*').eq('semestre_id',fromId);
+  const areaMap={};
+  for(const a of (oldAreas||[])){
+    const { data: na } = await db.from('areas').insert({nome:a.nome, semestre_id:toId}).select().single();
+    if(na) areaMap[a.id]=na.id;
+  }
+  // 2. Disciplinas
+  const { data: oldDiscs } = await db.from('disciplinas').select('*').eq('semestre_id',fromId);
+  if(oldDiscs?.length){
+    await db.from('disciplinas').insert(oldDiscs.map(d=>({
+      nome:d.nome, turma:d.turma, ch_semanal:d.ch_semanal,
+      turno:d.turno, nivel:d.nivel||'superior',
+      area_id:areaMap[d.area_id]||null, semestre_id:toId
+    })));
+  }
+  // 3. Faixas horárias
+  const { data: oldHors } = await db.from('horarios').select('*').eq('semestre_id',fromId);
+  if(oldHors?.length){
+    await db.from('horarios').insert(oldHors.map(h=>({
+      dia:h.dia, inicio:h.inicio, fim:h.fim, turno:h.turno, semestre_id:toId
+    })));
+  }
 }
 
 // ── Areas ──
