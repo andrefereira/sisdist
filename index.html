@@ -514,11 +514,17 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
                 <option value="ambos">Ambos</option>
               </select>
             </div>
+            <div class="fg"><label>Nível</label>
+              <select id="nd-nivel">
+                <option value="superior">Superior</option>
+                <option value="médio">Médio</option>
+              </select>
+            </div>
             <button class="btn btn-primary btn-sm" onclick="addDisc()" style="margin-top:20px">✓</button>
             <button class="btn btn-ghost btn-sm" onclick="toggleForm('fa-disc')" style="margin-top:20px">✕</button>
           </div>
           <div class="table-wrap">
-            <table class="data-table"><thead><tr><th>#</th><th>Disciplina</th><th>Turma</th><th>Área</th><th>CH</th><th>Turno</th><th></th></tr></thead>
+            <table class="data-table"><thead><tr><th>#</th><th>Disciplina</th><th>Turma</th><th>Área</th><th>CH</th><th>Turno</th><th>Nível</th><th></th></tr></thead>
             <tbody id="disc-tbody"></tbody></table>
           </div>
         </div>
@@ -909,6 +915,11 @@ async function buildSlotGrid(){
   const empty=document.getElementById('ps2-empty');
   load.classList.remove('hidden'); wrap.classList.add('hidden'); empty.classList.add('hidden');
 
+  // Sempre busca faixas frescas do banco (evita cache desatualizado)
+  const { data: freshSlots } = await db.from('horarios')
+    .select('*').eq('semestre_id', CUR.semestre.id).order('dia').order('inicio');
+  CUR.horarios = freshSlots||[];
+
   const { data: saved } = await db.from('preferencias_horarios')
     .select('horario_id,nota').eq('prof_id',CUR.prof.id);
   const prefsMap={};
@@ -1190,8 +1201,9 @@ async function addDisc(){
   const ch=+document.getElementById('nd-ch').value;
   const areaId=document.getElementById('nd-area').value||null;
   const turno=document.getElementById('nd-turno').value;
+  const nivel=document.getElementById('nd-nivel').value;
   if(!nome||!CUR.semestre){ toast('Informe o nome e selecione uma área.','err'); return; }
-  const { error } = await db.from('disciplinas').insert({nome,turma,ch_semanal:ch,area_id:areaId,turno,semestre_id:CUR.semestre.id});
+  const { error } = await db.from('disciplinas').insert({nome,turma,ch_semanal:ch,area_id:areaId,turno,nivel,semestre_id:CUR.semestre.id});
   if(error){ toast(error.message,'err'); return; }
   document.getElementById('nd-nome').value=''; document.getElementById('nd-turma').value='';
   await loadMgrData(); renderDiscs(); toggleForm('fa-disc');
@@ -1206,11 +1218,12 @@ function renderDiscs(){
   const areaMap={}; CUR.areas.forEach(a=>areaMap[a.id]=a.nome);
   const list=areaFilter ? CUR.disciplinas.filter(d=>d.area_id===areaFilter) : CUR.disciplinas;
   const tb=document.getElementById('disc-tbody');
-  if(!list.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhuma disciplina.</td></tr>'; return; }
+  if(!list.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">Nenhuma disciplina.</td></tr>'; return; }
   tb.innerHTML=list.map((d,i)=>`<tr>
     <td>${i+1}</td><td>${d.nome}</td><td>${d.turma||'—'}</td>
     <td>${areaMap[d.area_id]||'—'}</td><td>${d.ch_semanal}h</td>
     <td><span style="font-size:.75rem;background:${d.turno==='noturno'?'#e8eeff':'var(--ok-l)'};color:${d.turno==='noturno'?'var(--blue)':'var(--ok)'};padding:2px 7px;border-radius:4px;font-weight:600">${d.turno}</span></td>
+    <td><span style="font-size:.75rem;background:${d.nivel==='médio'?'#fff3e0':'#f3e5f5'};color:${d.nivel==='médio'?'#e65100':'#6a1b9a'};padding:2px 7px;border-radius:4px;font-weight:600">${d.nivel||'superior'}</span></td>
     <td><button class="btn btn-xs btn-danger" onclick="delDisc('${d.id}')">🗑</button></td>
   </tr>`).join('');
   populateAreaSelects();
@@ -1222,9 +1235,9 @@ async function loadDefaultSlots(){
   if(!confirm('Isso substituirá as faixas horárias existentes. Continuar?')) return;
   await db.from('horarios').delete().eq('semestre_id',CUR.semestre.id);
   const PERIODS=[
-    {ini:'07:30',fim:'09:10',turno:'diurno'},{ini:'09:30',fim:'11:10',turno:'diurno'},
-    {ini:'13:30',fim:'15:10',turno:'diurno'},{ini:'15:30',fim:'17:10',turno:'diurno'},
-    {ini:'19:00',fim:'20:40',turno:'noturno'},{ini:'20:50',fim:'22:30',turno:'noturno'}
+    {ini:'08:00',fim:'09:40',turno:'diurno'},{ini:'10:00',fim:'11:40',turno:'diurno'},
+    {ini:'13:10',fim:'14:50',turno:'diurno'},{ini:'15:10',fim:'16:50',turno:'diurno'},
+    {ini:'19:00',fim:'20:40',turno:'noturno'},{ini:'21:00',fim:'22:40',turno:'noturno'}
   ];
   const DDAYS=['Segunda','Terça','Quarta','Quinta','Sexta'];
   const rows=[];
@@ -1588,10 +1601,13 @@ async function runModule2(){
       const disc=discMap[discId]; if(!disc) continue;
       const needed=Math.ceil(disc.ch_semanal/hrsSlot);
 
-      // Filter slots by turno compatibility
+      // Filter slots by turno compatibility + restrição do médio
+      const DIAS_SEM_TARDE=['Quarta','Sexta'];
       const compatSlots=CUR.horarios.filter(h=>{
-        if(disc.turno==='ambos') return true;
-        return h.turno===disc.turno;
+        if(disc.turno!=='ambos' && h.turno!==disc.turno) return false;
+        // Médio: sem vespertino na Quarta e Sexta
+        if((disc.nivel==='médio') && DIAS_SEM_TARDE.includes(h.dia) && h.turno==='diurno' && h.inicio>='12:00') return false;
+        return true;
       });
 
       // Sort by professor's preference (desc), 0 last
