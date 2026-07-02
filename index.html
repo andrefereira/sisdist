@@ -1208,6 +1208,50 @@ async function addDisc(){
   document.getElementById('nd-nome').value=''; document.getElementById('nd-turma').value='';
   await loadMgrData(); renderDiscs(); toggleForm('fa-disc');
 }
+function editDiscModal(id){
+  const d=CUR.disciplinas.find(x=>x.id===id); if(!d) return;
+  const areaOpts=CUR.areas.map(a=>`<option value="${a.id}"${a.id===d.area_id?' selected':''}>${a.nome}</option>`).join('');
+  const inp='padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;width:100%';
+  showModal('Editar Disciplina',
+    `<div class="form-group"><label>Disciplina</label><input id="ed-nome" value="${d.nome}" style="${inp}"></div>
+     <div class="form-group"><label>Turma</label><input id="ed-turma" value="${d.turma||''}" style="${inp}"></div>
+     <div class="form-row">
+       <div class="form-group"><label>CH Semanal</label><input type="number" id="ed-ch" value="${d.ch_semanal}" min="1" max="20" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px"></div>
+       <div class="form-group"><label>Turno</label>
+         <select id="ed-turno" style="${inp}">
+           <option value="diurno"${d.turno==='diurno'?' selected':''}>Diurno</option>
+           <option value="noturno"${d.turno==='noturno'?' selected':''}>Noturno</option>
+           <option value="ambos"${d.turno==='ambos'?' selected':''}>Ambos</option>
+         </select>
+       </div>
+     </div>
+     <div class="form-row">
+       <div class="form-group"><label>Área</label><select id="ed-area" style="${inp}"><option value="">Sem área</option>${areaOpts}</select></div>
+       <div class="form-group"><label>Nível</label>
+         <select id="ed-nivel" style="${inp}">
+           <option value="superior"${(d.nivel||'superior')==='superior'?' selected':''}>Superior</option>
+           <option value="médio"${d.nivel==='médio'?' selected':''}>Médio</option>
+         </select>
+       </div>
+     </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+     <button class="btn btn-primary" onclick="saveDisc('${id}')">Salvar</button>`
+  );
+}
+async function saveDisc(id){
+  const nome=document.getElementById('ed-nome').value.trim();
+  if(!nome){ toast('Informe o nome.','err'); return; }
+  const { error } = await db.from('disciplinas').update({
+    nome,
+    turma: document.getElementById('ed-turma').value.trim(),
+    ch_semanal: +document.getElementById('ed-ch').value,
+    turno: document.getElementById('ed-turno').value,
+    area_id: document.getElementById('ed-area').value||null,
+    nivel: document.getElementById('ed-nivel').value,
+  }).eq('id',id);
+  if(error){ toast(error.message,'err'); return; }
+  closeModal(); await loadMgrData(); renderDiscs();
+}
 async function delDisc(id){
   if(!confirm('Remover esta disciplina?')) return;
   await db.from('disciplinas').delete().eq('id',id);
@@ -1224,7 +1268,10 @@ function renderDiscs(){
     <td>${areaMap[d.area_id]||'—'}</td><td>${d.ch_semanal}h</td>
     <td><span style="font-size:.75rem;background:${d.turno==='noturno'?'#e8eeff':'var(--ok-l)'};color:${d.turno==='noturno'?'var(--blue)':'var(--ok)'};padding:2px 7px;border-radius:4px;font-weight:600">${d.turno}</span></td>
     <td><span style="font-size:.75rem;background:${d.nivel==='médio'?'#fff3e0':'#f3e5f5'};color:${d.nivel==='médio'?'#e65100':'#6a1b9a'};padding:2px 7px;border-radius:4px;font-weight:600">${d.nivel||'superior'}</span></td>
-    <td><button class="btn btn-xs btn-danger" onclick="delDisc('${d.id}')">🗑</button></td>
+    <td><div class="act-row">
+      <button class="btn btn-xs btn-ghost" onclick="editDiscModal('${d.id}')">✏️</button>
+      <button class="btn btn-xs btn-danger" onclick="delDisc('${d.id}')">🗑</button>
+    </div></td>
   </tr>`).join('');
   populateAreaSelects();
 }
