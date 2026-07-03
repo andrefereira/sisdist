@@ -378,7 +378,7 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
           ✅ Preenchimento confirmado! O gestor foi notificado. Você pode editar suas respostas retornando às etapas anteriores.
         </div>
         <div class="flex gap-8 mt-16">
-          <button class="btn btn-secondary" onclick="profGoStep2()">← Voltar</button>
+          <button class="btn btn-secondary" onclick="profBackToStep2()">← Voltar</button>
           <div class="flex-1"></div>
           <button class="btn btn-gold" onclick="profConfirm()" id="btn-prof-confirm">✓ Confirmar Respostas</button>
         </div>
@@ -1010,7 +1010,7 @@ async function profGoStep3(){
   setStep(3);
   await buildProfSummary();
 }
-function profGoStep2(){ setStep(2); }
+function profBackToStep2(){ setStep(2); }
 
 async function buildProfSummary(){
   const wrap=document.getElementById('ps3-summary');
