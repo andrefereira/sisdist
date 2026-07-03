@@ -827,8 +827,10 @@ async function loadMgrData(){
 }
 
 async function loadProfData(){
-  if(!CUR.semestre) return;
-  const sid = CUR.semestre.id;
+  // Preferências sempre do semestre ATIVO, não do semestre sendo navegado
+  const semAtivo = CUR.semestreAtivo || CUR.semestre;
+  if(!semAtivo) return;
+  const sid = semAtivo.id;
   const areaId = CUR.prof.area_id;
   const [d,h] = await Promise.all([
     areaId
@@ -936,9 +938,10 @@ async function buildSlotGrid(){
   const empty=document.getElementById('ps2-empty');
   load.classList.remove('hidden'); wrap.classList.add('hidden'); empty.classList.add('hidden');
   try {
-    if(!CUR.semestre) throw new Error('Semestre não carregado.');
+    const semAtivo = CUR.semestreAtivo || CUR.semestre;
+    if(!semAtivo) throw new Error('Semestre não carregado.');
     const { data: freshSlots, error: e1 } = await db.from('horarios')
-      .select('*').eq('semestre_id', CUR.semestre.id).order('dia').order('inicio');
+      .select('*').eq('semestre_id', semAtivo.id).order('dia').order('inicio');
     if(e1) throw e1;
     CUR.horarios = freshSlots||[];
 
