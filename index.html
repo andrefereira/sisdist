@@ -401,7 +401,10 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
   <!-- Banner: semestre inativo -->
   <div id="sem-inativo-banner" class="hidden" style="background:#fff3e0;border-bottom:2px solid #e65100;padding:8px 24px;display:flex;align-items:center;gap:12px;font-size:.87rem;color:#bf360c">
     <span>⚠️ Você está visualizando um semestre inativo.</span>
+    <button class="btn btn-xs" onclick="ativarSemestre()" style="background:#2e7d32;color:#fff;border:none">✓ Ativar este semestre</button>
     <button class="btn btn-xs" onclick="switchSemestre(CUR.semestreAtivo?.id)" style="background:#e65100;color:#fff;border:none">Voltar ao ativo</button>
+    <div class="spacer"></div>
+    <button class="btn btn-xs" onclick="deletarSemestre()" style="background:#c62828;color:#fff;border:none">🗑 Excluir semestre</button>
   </div>
   <div class="mgr-layout">
     <!-- Sidebar -->
@@ -1098,6 +1101,43 @@ async function saveSemConfig(){
   await loadMgrData();
   document.getElementById('mgr-sem-top').textContent=`${CUR.semestre.inst}·${CUR.semestre.nome}`;
   toast('Configurações salvas!');
+}
+
+async function deletarSemestre(){
+  if(!CUR.semestre || CUR.semestre.ativo) return;
+  const nome=CUR.semestre.nome;
+  if(!confirm(`⚠️ Excluir permanentemente o semestre "${nome}"?\n\nTodos os dados vinculados (áreas, disciplinas, faixas horárias e distribuições) serão removidos. Esta ação não pode ser desfeita.`)) return;
+  const sid=CUR.semestre.id;
+  // Exclui registros de distribuição manualmente (FK sem cascade)
+  await db.from('distribuicao_horarios').delete().eq('semestre_id',sid);
+  await db.from('distribuicao_disciplinas').delete().eq('semestre_id',sid);
+  // Exclui o semestre (cascade remove áreas, disciplinas e horários)
+  const { error } = await db.from('semestres').delete().eq('id',sid);
+  if(error){ toast(error.message,'err'); return; }
+  // Atualiza lista e volta ao ativo
+  CUR.semestres=CUR.semestres.filter(s=>s.id!==sid);
+  CUR.semestre=CUR.semestreAtivo;
+  await loadMgrData();
+  renderSemSwitcher();
+  const activeTab=document.querySelector('.tab-panel.active')?.id||'t-sem';
+  showTab(activeTab);
+  updateBadgeStatus();
+  toast(`Semestre "${nome}" excluído.`);
+}
+
+async function ativarSemestre(){
+  if(!CUR.semestre || CUR.semestre.ativo) return;
+  if(!confirm(`Ativar "${CUR.semestre.nome}" e desativar o semestre atual?`)) return;
+  // Desativa todos, ativa o selecionado
+  await db.from('semestres').update({ativo:false}).neq('id','00000000-0000-0000-0000-000000000000');
+  const { error } = await db.from('semestres').update({ativo:true}).eq('id', CUR.semestre.id);
+  if(error){ toast(error.message,'err'); return; }
+  // Atualiza lista local
+  CUR.semestres.forEach(s=>s.ativo = s.id===CUR.semestre.id);
+  CUR.semestre.ativo = true;
+  CUR.semestreAtivo = CUR.semestre;
+  renderSemSwitcher();
+  toast(`Semestre "${CUR.semestre.nome}" ativado!`);
 }
 
 function renderSemSwitcher(){
