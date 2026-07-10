@@ -774,22 +774,17 @@ async function afterLogin(){
     const { data, error } = await db.rpc('get_or_link_profile');
     if(error) throw error;
     if(!data){
-      // Check if this is the very first user (no gestor yet)
-      const { count } = await db.from('professores').select('*',{count:'exact',head:true}).eq('is_gestor',true);
-      if(count === 0){
-        showScreen('s-setup');
-      } else {
-        showModal('Acesso não autorizado',
-          'Seu e-mail não está cadastrado no sistema. Entre em contato com o gestor responsável.');
-        showScreen('s-login');
-      }
+      // Usuário não cadastrado: permite configurar novo campus
+      showScreen('s-setup');
       return;
     }
     CUR.prof = data;
     CUR.isGestor = data.is_gestor;
 
-    // Load all semestres + active one
-    const { data: allSems } = await db.from('semestres').select('*').order('created_at',{ascending:false});
+    // Load all semestres do campus deste usuário
+    const { data: allSems } = await db.from('semestres').select('*')
+      .eq('inst', CUR.prof.inst||'')
+      .order('created_at',{ascending:false});
     CUR.semestres = allSems||[];
     const sem = CUR.semestres.find(s=>s.ativo) || CUR.semestres[0] || null;
     CUR.semestre = sem;
@@ -832,7 +827,7 @@ async function loadMgrData(){
   const sid = CUR.semestre.id;
   const [a,p,d,h] = await Promise.all([
     db.from('areas').select('*').eq('semestre_id',sid).order('nome'),
-    db.from('professores').select('*').order('nome'),
+    db.from('professores').select('*').eq('inst',CUR.prof.inst||'').order('nome'),
     db.from('disciplinas').select('*').eq('semestre_id',sid).order('nome'),
     db.from('horarios').select('*').eq('semestre_id',sid).order('dia').order('inicio'),
   ]);
@@ -1295,7 +1290,7 @@ async function addProf(){
   const chMax=+document.getElementById('np-max').value;
   const isGestor=document.getElementById('np-gestor').checked;
   if(!nome||!email){ toast('Informe nome e e-mail.','err'); return; }
-  const { error } = await db.from('professores').insert({nome,email,area_id:areaId,ch_min:chMin,ch_max:chMax,is_gestor:isGestor});
+  const { error } = await db.from('professores').insert({nome,email,area_id:areaId,ch_min:chMin,ch_max:chMax,is_gestor:isGestor,inst:CUR.prof.inst||''});
   if(error){ toast(error.message,'err'); return; }
   document.getElementById('np-nome').value='';
   document.getElementById('np-email').value='';
