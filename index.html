@@ -205,6 +205,27 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
 .modal{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow2);max-width:480px;width:100%;padding:28px}
 .modal h3{color:var(--green);margin-bottom:14px}
 .modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+
+/* ── Trocas de Aula ── */
+.tr-tabs{display:flex;gap:8px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+.tr-tab-btn{background:none;border:none;padding:9px 16px;font-size:.86rem;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;transition:.12s}
+.tr-tab-btn:hover{color:var(--green)}
+.tr-tab-btn.active{color:var(--green);font-weight:600;border-bottom-color:var(--green)}
+.tr-tab-panel{display:none}.tr-tab-panel.active{display:block}
+.lista-cartoes{display:flex;flex-direction:column;gap:10px}
+.cartao-aula{border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;cursor:pointer;transition:border-color .15s;background:var(--white)}
+.cartao-aula:hover{border-color:var(--green)}
+.cartao-aula.selecionado{border-color:var(--green);background:var(--green-l)}
+.cartao-aula .titulo{font-weight:600}
+.cartao-aula .detalhe{font-size:.8rem;color:var(--text2)}
+.cartao-troca{border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:var(--white)}
+.cartao-troca .linha{font-size:.86rem;margin-bottom:4px}
+.cartao-troca .status{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 10px;margin-bottom:8px}
+.status-proposta{background:var(--warn-l);color:var(--warn)}
+.status-reposicao_proposta{background:var(--blue-l);color:var(--blue)}
+.status-confirmada{background:var(--ok-l);color:var(--ok)}
+.status-recusada,.status-cancelada{background:var(--red-l);color:var(--red)}
+.acoes-cartao{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -302,6 +323,7 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
     <span class="title-t">Portal do Professor</span>
     <div class="spacer"></div>
     <span class="user-t" id="prof-name-top"></span>
+    <button class="btn-exit" onclick="openTrocasScreen()" style="background:rgba(255,255,255,.2)">🔄 Trocas <span class="badge hidden" id="badge-trocas">0</span></button>
     <button class="btn-exit hidden" id="btn-back-mgr" onclick="openManagerScreen()" style="background:rgba(255,255,255,.25)">← Painel</button>
     <button class="btn-exit" onclick="logout()">Sair</button>
   </div>
@@ -395,6 +417,7 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
       style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:6px;padding:4px 10px;font-size:.88rem;cursor:pointer;max-width:220px"></select>
     <div class="spacer"></div>
     <span class="user-t" id="mgr-name-top"></span>
+    <button class="btn-exit" onclick="openTrocasScreen()" style="background:rgba(255,255,255,.2)">🔄 Trocas <span class="badge hidden" id="badge-trocas-mgr">0</span></button>
     <button class="btn-exit" id="btn-mgr-prof-view" onclick="switchToProf()" style="background:rgba(255,255,255,.2)">👤 Minhas Preferências</button>
     <button class="btn-exit" onclick="logout()">Sair</button>
   </div>
@@ -414,6 +437,8 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
       <button class="tab-btn"        onclick="showTab('t-areas')"   id="tb-t-areas">  <span class="ti">🏫</span> Áreas & Profs</button>
       <button class="tab-btn"        onclick="showTab('t-disc')"    id="tb-t-disc">   <span class="ti">📚</span> Disciplinas</button>
       <button class="tab-btn"        onclick="showTab('t-hor')"     id="tb-t-hor">    <span class="ti">🕐</span> Faixas Horárias</button>
+      <div class="sidebar-section">Trocas de Aula</div>
+      <button class="tab-btn"        onclick="showTab('t-grade')"   id="tb-t-grade">  <span class="ti">🔄</span> Grade & Importação</button>
       <div class="sidebar-section">Coleta</div>
       <button class="tab-btn"        onclick="showTab('t-status')"  id="tb-t-status"> <span class="ti">📊</span> Status <span class="badge" id="badge-status">0</span></button>
       <div class="sidebar-section">Distribuição</div>
@@ -579,6 +604,58 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
         </div>
       </div>
 
+      <!-- ── TAB: GRADE & IMPORTAÇÃO (Trocas de Aula) ── -->
+      <div class="tab-panel" id="t-grade">
+        <h2>🔄 Grade & Importação — Trocas de Aula</h2>
+        <div class="box info">
+          Esta grade é independente da distribuição gerada pelos Módulos 1/2 — é a fonte usada para achar colegas disponíveis na aba "Trocas". Reimporte sempre que a grade real de aulas mudar.
+        </div>
+
+        <div class="config-card">
+          <div class="config-card-head"><h3>Importar em lote (JSON)</h3></div>
+          <div class="config-card-body">
+            <p class="text-sm text-muted mb-12">
+              Cole um array no formato
+              <code>[{"email":"...","dia":"Segunda","inicio":"08:00","fim":"09:40","turma_codigo":"3ELETRO","turma":"3º Ano Eletrotécnica","disciplina":"Matemática","sala":"G03"}, ...]</code>.
+              A importação <strong>substitui toda a grade do semestre atual</strong>. O professor é casado pelo e-mail já cadastrado.
+            </p>
+            <textarea id="grade-json" rows="6" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:monospace;font-size:.8rem;margin-bottom:10px" placeholder="[ ... ]"></textarea>
+            <button class="btn btn-primary btn-sm" onclick="importarGradeJSON()">⬆ Importar</button>
+            <div id="grade-import-resultado" class="mt-12"></div>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-card-head">
+            <h3>Grade do Semestre Ativo</h3>
+            <button class="btn btn-primary btn-sm" onclick="toggleForm('fa-grade')">+ Adicionar</button>
+          </div>
+          <div class="inline-form hidden" id="fa-grade">
+            <div class="fg"><label>Professor</label><select id="ng-prof"></select></div>
+            <div class="fg"><label>Dia</label>
+              <select id="ng-dia">
+                <option>Segunda</option><option>Terça</option><option>Quarta</option>
+                <option>Quinta</option><option>Sexta</option><option>Sábado</option>
+              </select>
+            </div>
+            <div class="fg"><label>Início</label><input type="time" id="ng-ini"></div>
+            <div class="fg"><label>Fim</label><input type="time" id="ng-fim"></div>
+            <div class="fg"><label>Código da turma</label><input type="text" id="ng-turma-cod" placeholder="Ex: 3ELETRO"></div>
+            <div class="fg"><label>Turma (nome completo)</label><input type="text" id="ng-turma" placeholder="Ex: 3º Ano Eletrotécnica"></div>
+            <div class="fg"><label>Disciplina</label><input type="text" id="ng-disc"></div>
+            <div class="fg"><label>Sala</label><input type="text" id="ng-sala"></div>
+            <button class="btn btn-primary btn-sm" onclick="addAulaGrade()" style="margin-top:20px">✓</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleForm('fa-grade')" style="margin-top:20px">✕</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Professor</th><th>Dia</th><th>Início</th><th>Fim</th><th>Turma</th><th>Disciplina</th><th></th></tr></thead>
+              <tbody id="grade-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- ── TAB: STATUS ── -->
       <div class="tab-panel" id="t-status">
         <h2>📊 Status das Respostas</h2>
@@ -621,6 +698,63 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
   </div><!-- /mgr-layout -->
 </div><!-- /s-manager -->
 
+<!-- ════ TROCAS DE AULA ════ -->
+<div id="s-trocas" class="screen">
+  <div class="topbar">
+    <span class="logo-t">SisDist</span><span class="sep">|</span>
+    <span class="title-t">Trocas de Aula</span>
+    <div class="spacer"></div>
+    <span class="user-t" id="tr-name-top"></span>
+    <button class="btn-exit" onclick="fecharTrocas()" style="background:rgba(255,255,255,.25)">← Voltar</button>
+    <button class="btn-exit" onclick="logout()">Sair</button>
+  </div>
+
+  <div style="max-width:900px;margin:0 auto;padding:24px">
+    <nav class="tr-tabs">
+      <button class="tr-tab-btn active" onclick="showTrocasTab('tr-propor')" id="tb-tr-propor">🔄 Propor Troca</button>
+      <button class="tr-tab-btn" onclick="showTrocasTab('tr-recebidas')" id="tb-tr-recebidas">📥 Recebidas <span class="badge hidden" id="badge-tr-recebidas">0</span></button>
+      <button class="tr-tab-btn" onclick="showTrocasTab('tr-enviadas')" id="tb-tr-enviadas">📤 Enviadas</button>
+    </nav>
+
+    <!-- ── ABA: PROPOR ── -->
+    <div class="tr-tab-panel active" id="tr-propor">
+      <div class="card-sm">
+        <h3>1. Escolha o dia</h3>
+        <input type="date" id="tr-input-data" onchange="trDataEscolhida()" style="margin-top:8px">
+      </div>
+
+      <div class="card-sm hidden" id="tr-bloco-aulas">
+        <h3>2. Escolha a aula</h3>
+        <p class="text-sm text-muted mb-12">Aulas da sua grade nesse dia da semana.</p>
+        <div id="tr-lista-aulas" class="lista-cartoes"></div>
+      </div>
+
+      <div class="card-sm hidden" id="tr-bloco-colegas">
+        <h3>3. Colegas que podem dar essa aula por você</h3>
+        <p class="text-sm text-muted mb-12">Mesma turma, sem conflito de horário nesse dia.</p>
+        <div id="tr-lista-colegas" class="lista-cartoes"></div>
+      </div>
+    </div>
+
+    <!-- ── ABA: RECEBIDAS ── -->
+    <div class="tr-tab-panel" id="tr-recebidas">
+      <div class="card-sm">
+        <h3>Propostas recebidas</h3>
+        <p class="text-sm text-muted mb-12">Aulas que colegas pedem para você cobrir. Aceite e proponha uma data de reposição.</p>
+        <div id="tr-lista-recebidas" class="lista-cartoes"></div>
+      </div>
+    </div>
+
+    <!-- ── ABA: ENVIADAS ── -->
+    <div class="tr-tab-panel" id="tr-enviadas">
+      <div class="card-sm">
+        <h3>Propostas enviadas</h3>
+        <div id="tr-lista-enviadas" class="lista-cartoes"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /s-trocas -->
+
 <!-- MODAL -->
 <div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
@@ -649,7 +783,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON, {
 // Se esta mensagem NÃO aparecer no console, o navegador está executando
 // uma cópia ANTIGA em cache — faça um hard refresh (Ctrl+Shift+R / Ctrl+F5)
 // ou republique o arquivo no GitHub Pages.
-const APP_VERSION = '2026-07-03.1';
+const APP_VERSION = '2026-08-11.1-trocas';
 console.log('[SisDist] versão', APP_VERSION);
 
 // ── State ──────────────────────────────────────────────────────
@@ -665,6 +799,12 @@ let CUR = {           // current user session data
   profs: [],
   disciplinas: [],
   horarios: [],
+  // ── Trocas de Aula ──
+  gradeAulas: [],      // toda a grade_aulas do semestre (visão do gestor, aba Grade & Importação)
+  minhaGrade: [],      // grade_aulas do professor logado
+  gradeColegas: [],    // grade_aulas de todos os colegas do mesmo campus/semestre (p/ matching)
+  trocasRecebidas: [], // trocas em que o professor logado é o substituto
+  trocasEnviadas: [],  // trocas em que o professor logado é o solicitante
 };
 const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 
@@ -699,6 +839,7 @@ function showTab(id){
   if(id==='t-areas'){ renderAreas(); renderProfs(); populateAreaSelects(); }
   if(id==='t-disc') renderDiscs();
   if(id==='t-hor') renderSlots();
+  if(id==='t-grade') renderGrade();
   if(id==='t-mod1' && CUR.semestre) loadMod1Result();
   if(id==='t-mod2' && CUR.semestre) loadMod2Result();
 }
@@ -753,7 +894,14 @@ async function sendMagicLink(){
 
 async function logout(){
   await db.auth.signOut();
-  CUR = {user:null,prof:null,isGestor:false,semestre:null,areas:[],profs:[],disciplinas:[],horarios:[]};
+  // Reset completo (era parcial antes — faltavam gestorProf/semestreAtivo/semestres,
+  // o que podia vazar estado da sessão anterior num navegador compartilhado).
+  CUR = {
+    user:null, prof:null, isGestor:false, gestorProf:null,
+    semestre:null, semestreAtivo:null, semestres:[],
+    areas:[], profs:[], disciplinas:[], horarios:[],
+    gradeAulas:[], minhaGrade:[], gradeColegas:[], trocasRecebidas:[], trocasEnviadas:[]
+  };
   showScreen('s-login');
 }
 
@@ -825,16 +973,18 @@ async function doSetup(){
 async function loadMgrData(){
   if(!CUR.semestre) return;
   const sid = CUR.semestre.id;
-  const [a,p,d,h] = await Promise.all([
+  const [a,p,d,h,g] = await Promise.all([
     db.from('areas').select('*').eq('semestre_id',sid).order('nome'),
     db.from('professores').select('*').eq('inst',CUR.prof.inst||'').order('nome'),
     db.from('disciplinas').select('*').eq('semestre_id',sid).order('nome'),
     db.from('horarios').select('*').eq('semestre_id',sid).order('dia').order('inicio'),
+    db.from('grade_aulas').select('*').eq('semestre_id',sid).order('dia').order('inicio'),
   ]);
   CUR.areas      = a.data||[];
   CUR.profs      = p.data||[];
   CUR.disciplinas= d.data||[];
   CUR.horarios   = h.data||[];
+  CUR.gradeAulas = g.data||[];
 }
 
 async function loadProfData(){
@@ -1485,6 +1635,68 @@ function renderSlots(){
   </tr>`).join('');
 }
 
+// ── Grade & Importação (Trocas de Aula) ──
+function populateGradeProfSelect(){
+  const sel = document.getElementById('ng-prof');
+  if(!sel) return;
+  sel.innerHTML = CUR.profs.slice().sort((a,b)=>a.nome.localeCompare(b.nome))
+    .map(p=>`<option value="${p.id}">${p.nome}</option>`).join('');
+}
+function renderGrade(){
+  populateGradeProfSelect();
+  const tb=document.getElementById('grade-tbody');
+  if(!CUR.gradeAulas.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhuma aula na grade. Importe um JSON ou adicione manualmente.</td></tr>'; return; }
+  const mapaProf = new Map(CUR.profs.map(p=>[p.id,p.nome]));
+  tb.innerHTML = CUR.gradeAulas.map(a=>`<tr>
+    <td>${mapaProf.get(a.prof_id)||'—'}</td><td>${a.dia}</td><td>${a.inicio.slice(0,5)}</td><td>${a.fim.slice(0,5)}</td>
+    <td>${a.turma_codigo}</td><td>${a.disciplina}</td>
+    <td><button class="btn btn-xs btn-danger" onclick="delAulaGrade('${a.id}')">🗑</button></td>
+  </tr>`).join('');
+}
+async function addAulaGrade(){
+  if(!CUR.semestre) return;
+  const prof_id = document.getElementById('ng-prof').value;
+  const inicio = document.getElementById('ng-ini').value;
+  const fim = document.getElementById('ng-fim').value;
+  const turma_codigo = document.getElementById('ng-turma-cod').value.trim();
+  const disciplina = document.getElementById('ng-disc').value.trim();
+  if(!prof_id || !inicio || !fim || !turma_codigo || !disciplina){ toast('Preencha professor, horário, código da turma e disciplina.','err'); return; }
+  const { error } = await db.from('grade_aulas').insert({
+    prof_id, semestre_id: CUR.semestre.id,
+    dia: document.getElementById('ng-dia').value,
+    inicio, fim,
+    turma_codigo: turma_codigo.toUpperCase(),
+    turma: document.getElementById('ng-turma').value.trim(),
+    disciplina,
+    sala: document.getElementById('ng-sala').value.trim()
+  });
+  if(error){ toast(error.message,'err'); return; }
+  await loadMgrData(); renderGrade(); toggleForm('fa-grade');
+}
+async function delAulaGrade(id){
+  if(!confirm('Remover esta aula da grade? Trocas que dependam dela também serão removidas.')) return;
+  await db.from('grade_aulas').delete().eq('id',id);
+  await loadMgrData(); renderGrade();
+}
+async function importarGradeJSON(){
+  const raw = document.getElementById('grade-json').value.trim();
+  const resDiv = document.getElementById('grade-import-resultado');
+  if(!CUR.semestre){ toast('Nenhum semestre selecionado.','err'); return; }
+  let itens;
+  try { itens = JSON.parse(raw); if(!Array.isArray(itens)) throw new Error('esperado um array'); }
+  catch(e){ resDiv.innerHTML = `<div class="box warn">JSON inválido: ${e.message}</div>`; return; }
+  if(!confirm(`Isso substitui toda a grade do semestre "${CUR.semestre.nome}" pelos ${itens.length} itens colados. Continuar?`)) return;
+
+  const { data, error } = await db.rpc('gestor_importar_grade', { p_semestre_id: CUR.semestre.id, p_itens: itens });
+  if(error){ resDiv.innerHTML = `<div class="box warn">${error.message}</div>`; return; }
+  const erros = data?.erros||[];
+  resDiv.innerHTML = `<div class="box ${erros.length?'warn':'ok'}">
+    ${data.importados} aula(s) importada(s).
+    ${erros.length ? '<br>'+erros.length+' erro(s):<br>'+erros.map(e=>`• ${e.email||'—'}: ${e.erro}`).join('<br>') : ''}
+  </div>`;
+  await loadMgrData(); renderGrade();
+}
+
 // ── Status Tab ──
 async function loadStatusTab(){
   await loadMgrData();
@@ -1906,6 +2118,260 @@ async function loadMod2Result(){
   });
   html+='</tbody></table></div>';
   document.getElementById('mod2-result').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TROCAS DE AULA
+// ═══════════════════════════════════════════════════════════════
+const DIAS_SEMANA_TR = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+let trTelaAnterior = 's-professor'; // para onde "← Voltar" leva
+let trAulaSelecionada = null;
+
+// Converte "2026-08-10" (string de <input type="date">) no dia da semana em PT-BR.
+// Meio-dia UTC evita bug de fuso horário na virada da meia-noite.
+function trDiaDaSemana(dataISO){
+  const d = new Date(dataISO+'T12:00:00');
+  const DOM = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  return DOM[d.getDay()];
+}
+function trParaMinutos(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+(m||0); }
+function trSeSobrepoem(aIni,aFim,bIni,bFim){
+  return trParaMinutos(aIni)<trParaMinutos(bFim) && trParaMinutos(bIni)<trParaMinutos(aFim);
+}
+// Um professor está livre num dia/horário se nenhuma aula sua (em qualquer
+// turma) se sobrepõe ao intervalo dado.
+function trProfessorLivre(aulasDoProf,dia,inicio,fim){
+  return !aulasDoProf.some(a=>a.dia===dia && trSeSobrepoem(a.inicio,a.fim,inicio,fim));
+}
+// Dado a aula que o professor quer cobrir, retorna colegas da MESMA turma que
+// (1) também lecionam para ela em outro horário e (2) estão livres no dia/hora alvo.
+function trBuscarCandidatos(todasAulas, aulaAlvo){
+  const naTurmaPorProf = new Map(), completasPorProf = new Map();
+  for(const a of todasAulas){
+    if(a.prof_id===aulaAlvo.prof_id) continue;
+    if(!completasPorProf.has(a.prof_id)) completasPorProf.set(a.prof_id,[]);
+    completasPorProf.get(a.prof_id).push(a);
+    if((a.turma_codigo||'').trim().toUpperCase()===(aulaAlvo.turma_codigo||'').trim().toUpperCase()){
+      if(!naTurmaPorProf.has(a.prof_id)) naTurmaPorProf.set(a.prof_id,[]);
+      naTurmaPorProf.get(a.prof_id).push(a);
+    }
+  }
+  const candidatos=[];
+  for(const [profId,aulasNaTurma] of naTurmaPorProf.entries()){
+    const completas = completasPorProf.get(profId)||[];
+    if(!trProfessorLivre(completas, aulaAlvo.dia, aulaAlvo.inicio, aulaAlvo.fim)) continue;
+    candidatos.push({profId, aulasNaTurma: aulasNaTurma.slice().sort((a,b)=>a.dia.localeCompare(b.dia)||a.inicio.localeCompare(b.inicio))});
+  }
+  return candidatos;
+}
+
+async function openTrocasScreen(){
+  trTelaAnterior = document.querySelector('.screen.active')?.id || 's-professor';
+  document.getElementById('tr-name-top').textContent = CUR.prof?.nome||'';
+  showScreen('s-trocas');
+  showTrocasTab('tr-propor');
+  await loadTrocasData();
+}
+function fecharTrocas(){ showScreen(trTelaAnterior); }
+
+function showTrocasTab(id){
+  document.querySelectorAll('#s-trocas .tr-tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#s-trocas .tr-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('tb-'+id).classList.add('active');
+}
+
+async function loadTrocasData(){
+  const semAtivo = CUR.semestreAtivo || CUR.semestre;
+  if(!semAtivo || !CUR.prof) return;
+  const meuId = CUR.prof.id;
+  const [minha, colegas, trocas] = await withTimeout(Promise.all([
+    db.from('grade_aulas').select('*').eq('semestre_id',semAtivo.id).eq('prof_id',meuId),
+    db.from('grade_aulas').select('*').eq('semestre_id',semAtivo.id),
+    db.from('trocas').select('*').or(`solicitante_id.eq.${meuId},substituto_id.eq.${meuId}`).eq('semestre_id',semAtivo.id),
+  ]), 15000, 'Carregar trocas');
+  CUR.minhaGrade      = minha.data||[];
+  CUR.gradeColegas     = colegas.data||[];
+  CUR.trocasEnviadas   = (trocas.data||[]).filter(t=>t.solicitante_id===meuId);
+  CUR.trocasRecebidas  = (trocas.data||[]).filter(t=>t.substituto_id===meuId);
+  trAulaSelecionada = null;
+  document.getElementById('tr-bloco-aulas').classList.add('hidden');
+  document.getElementById('tr-bloco-colegas').classList.add('hidden');
+  renderTrocasRecebidas();
+  renderTrocasEnviadas();
+  updateBadgeTrocas();
+}
+
+function trDataEscolhida(){
+  const data = document.getElementById('tr-input-data').value;
+  document.getElementById('tr-bloco-colegas').classList.add('hidden');
+  trAulaSelecionada = null;
+  if(!data){ document.getElementById('tr-bloco-aulas').classList.add('hidden'); return; }
+  const dia = trDiaDaSemana(data);
+  const minhasAulas = CUR.minhaGrade.filter(a=>a.dia===dia).sort((a,b)=>a.inicio.localeCompare(b.inicio));
+  const lista = document.getElementById('tr-lista-aulas');
+  if(!minhasAulas.length){
+    lista.innerHTML = `<p class="text-sm text-muted">Você não tem aulas cadastradas na ${dia.toLowerCase()}-feira.</p>`;
+  } else {
+    lista.innerHTML = minhasAulas.map(a=>`
+      <div class="cartao-aula" data-id="${a.id}" onclick="trSelecionarAula('${a.id}')">
+        <div class="titulo">${a.disciplina} — ${a.turma||a.turma_codigo}</div>
+        <div class="detalhe">${dia}, ${a.inicio.slice(0,5)} às ${a.fim.slice(0,5)} · sala ${a.sala||'—'}</div>
+      </div>`).join('');
+  }
+  document.getElementById('tr-bloco-aulas').classList.remove('hidden');
+}
+
+function trSelecionarAula(aulaId){
+  document.querySelectorAll('#tr-lista-aulas .cartao-aula').forEach(el=>
+    el.classList.toggle('selecionado', el.dataset.id===aulaId));
+  const aula = CUR.minhaGrade.find(a=>a.id===aulaId);
+  trAulaSelecionada = aula;
+
+  const candidatos = trBuscarCandidatos(CUR.gradeColegas, aula);
+  const lista = document.getElementById('tr-lista-colegas');
+  if(!candidatos.length){
+    lista.innerHTML = `<p class="text-sm text-muted">Nenhum colega da turma ${aula.turma||aula.turma_codigo} está livre nesse horário.</p>`;
+  } else {
+    lista.innerHTML = candidatos.map(c=>{
+      const prof = CUR.profs.find(p=>p.id===c.profId);
+      const nome = prof?.nome || c.profId;
+      const outras = c.aulasNaTurma.map(a=>`${a.dia} ${a.inicio.slice(0,5)}-${a.fim.slice(0,5)} (${a.disciplina})`).join(' · ');
+      return `<div class="cartao-troca">
+        <div class="linha"><strong>${nome}</strong></div>
+        <div class="linha text-muted">Também dá aula para essa turma em: ${outras}</div>
+        <div class="acoes-cartao">
+          <button class="btn btn-primary btn-sm" onclick="trEnviarProposta('${c.profId}','${nome.replace(/'/g,"\\'")}')">Enviar proposta</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('tr-bloco-colegas').classList.remove('hidden');
+}
+
+async function trEnviarProposta(substitutoId, substitutoNome){
+  const data = document.getElementById('tr-input-data').value;
+  const { error } = await db.rpc('trocas_propor', {
+    p_horario_id: trAulaSelecionada.id, p_substituto_id: substitutoId, p_data_ausencia: data
+  });
+  if(error){ toast(error.message,'err'); return; }
+  showModal('Proposta enviada', `${substitutoNome} vai receber sua proposta e poderá aceitar propondo uma data de reposição.`);
+  document.getElementById('tr-input-data').value='';
+  trDataEscolhida();
+  await loadTrocasData();
+}
+
+const TR_ROTULOS_STATUS = {
+  proposta:'Aguardando resposta', reposicao_proposta:'Reposição proposta',
+  confirmada:'Confirmada', recusada:'Recusada', cancelada:'Cancelada'
+};
+function trOrdenarPorData(a,b){ return (b.data_ausencia||'').localeCompare(a.data_ausencia||''); }
+
+function renderTrocasRecebidas(){
+  const lista = document.getElementById('tr-lista-recebidas');
+  const pendentes = CUR.trocasRecebidas.filter(t=>t.status==='proposta');
+  if(!CUR.trocasRecebidas.length){
+    lista.innerHTML = `<p class="text-sm text-muted">Nenhuma proposta recebida ainda.</p>`;
+    return;
+  }
+  lista.innerHTML = CUR.trocasRecebidas.slice().sort(trOrdenarPorData).map(t=>trCartaoTroca(t,'recebida')).join('');
+}
+function renderTrocasEnviadas(){
+  const lista = document.getElementById('tr-lista-enviadas');
+  if(!CUR.trocasEnviadas.length){
+    lista.innerHTML = `<p class="text-sm text-muted">Nenhuma proposta enviada ainda.</p>`;
+    return;
+  }
+  lista.innerHTML = CUR.trocasEnviadas.slice().sort(trOrdenarPorData).map(t=>trCartaoTroca(t,'enviada')).join('');
+}
+function trCartaoTroca(t, tipo){
+  const outroId = tipo==='recebida' ? t.solicitante_id : t.substituto_id;
+  const outroNome = CUR.profs.find(p=>p.id===outroId)?.nome || '—';
+  const papel = tipo==='recebida' ? 'pedido de' : 'enviado para';
+  let acoes='';
+  if(tipo==='recebida' && t.status==='proposta'){
+    acoes = `<button class="btn btn-primary btn-sm" onclick="trAbrirModalAceitar('${t.id}')">Aceitar e propor reposição</button>
+             <button class="btn btn-danger btn-sm" onclick="trRecusar('${t.id}')">Recusar</button>`;
+  }
+  if(tipo==='enviada' && t.status==='reposicao_proposta'){
+    acoes = `<button class="btn btn-primary btn-sm" onclick="trConfirmar('${t.id}')">Confirmar troca</button>
+             <button class="btn btn-secondary btn-sm" onclick="trPedirNovaData('${t.id}')">Pedir outra data</button>`;
+  }
+  if((t.status==='proposta'||t.status==='reposicao_proposta') && tipo==='enviada'){
+    acoes += ` <button class="btn btn-danger btn-sm" onclick="trCancelar('${t.id}')">Cancelar</button>`;
+  }
+  const reposicao = t.data_reposicao_proposta
+    ? `<div class="linha">Reposição proposta: ${t.reposicao_dia}, ${t.data_reposicao_proposta}, ${(t.reposicao_inicio||'').slice(0,5)}–${(t.reposicao_fim||'').slice(0,5)}</div>`
+    : '';
+  return `<div class="cartao-troca">
+    <span class="status status-${t.status}">${TR_ROTULOS_STATUS[t.status]||t.status}</span>
+    <div class="linha">${papel} <strong>${outroNome}</strong></div>
+    <div class="linha">${t.disciplina} — ${t.turma||t.turma_codigo}</div>
+    <div class="linha text-muted">Ausência: ${t.dia_semana}, ${t.data_ausencia}, ${(t.inicio||'').slice(0,5)}–${(t.fim||'').slice(0,5)}</div>
+    ${reposicao}
+    <div class="acoes-cartao">${acoes}</div>
+  </div>`;
+}
+
+function trAbrirModalAceitar(trocaId){
+  const t = CUR.trocasRecebidas.find(x=>x.id===trocaId);
+  const meusHorariosNaTurma = CUR.minhaGrade.filter(a=>
+    (a.turma_codigo||'').trim().toUpperCase()===(t.turma_codigo||'').trim().toUpperCase());
+  const opcoes = meusHorariosNaTurma.map(a=>
+    `<option value="${a.id}">${a.dia} ${a.inicio.slice(0,5)}-${a.fim.slice(0,5)} (${a.disciplina})</option>`).join('');
+  showModal('Propor data de reposição', `
+    <p class="text-sm text-muted mb-12">Escolha um dos seus horários com a turma ${t.turma||t.turma_codigo} e a data em que a reposição vai acontecer.</p>
+    <label>Horário (referência de dia da semana)</label>
+    <select id="tr-modal-horario" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px">${opcoes}</select>
+    <label>Data da reposição</label>
+    <input type="date" id="tr-modal-data" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
+    <p class="text-sm" id="tr-modal-aviso" style="color:var(--red)"></p>
+  `, `<button class="btn btn-primary" onclick="trConfirmarAceite('${trocaId}')">Confirmar proposta</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>`);
+}
+async function trConfirmarAceite(trocaId){
+  const horarioId = document.getElementById('tr-modal-horario').value;
+  const dataRep = document.getElementById('tr-modal-data').value;
+  const aviso = document.getElementById('tr-modal-aviso');
+  const horario = CUR.minhaGrade.find(a=>a.id===horarioId);
+  if(!dataRep){ aviso.textContent='Escolha uma data.'; return; }
+  if(trDiaDaSemana(dataRep)!==horario.dia){
+    aviso.textContent = `Essa data cai numa ${trDiaDaSemana(dataRep).toLowerCase()}-feira, mas o horário escolhido é de ${horario.dia.toLowerCase()}-feira. Ajuste a data.`;
+    return;
+  }
+  const { error } = await db.rpc('trocas_aceitar_com_reposicao', {
+    p_troca_id: trocaId, p_reposicao_dia: horario.dia,
+    p_reposicao_inicio: horario.inicio, p_reposicao_fim: horario.fim, p_data_reposicao: dataRep
+  });
+  if(error){ aviso.textContent = error.message; return; }
+  closeModal();
+  await loadTrocasData();
+}
+async function trRecusar(id){
+  if(!confirm('Recusar essa proposta?')) return;
+  const {error}=await db.rpc('trocas_recusar',{p_troca_id:id}); if(error) toast(error.message,'err'); await loadTrocasData();
+}
+async function trConfirmar(id){
+  if(!confirm('Confirmar a troca com essa data de reposição?')) return;
+  const {error}=await db.rpc('trocas_confirmar',{p_troca_id:id}); if(error) toast(error.message,'err'); await loadTrocasData();
+}
+async function trPedirNovaData(id){
+  if(!confirm('Pedir uma nova data de reposição?')) return;
+  const {error}=await db.rpc('trocas_pedir_nova_data',{p_troca_id:id}); if(error) toast(error.message,'err'); await loadTrocasData();
+}
+async function trCancelar(id){
+  if(!confirm('Cancelar essa proposta?')) return;
+  const {error}=await db.rpc('trocas_cancelar',{p_troca_id:id}); if(error) toast(error.message,'err'); await loadTrocasData();
+}
+
+function updateBadgeTrocas(){
+  const n = CUR.trocasRecebidas.filter(t=>t.status==='proposta').length;
+  ['badge-trocas','badge-trocas-mgr','badge-tr-recebidas'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = n;
+    el.classList.toggle('hidden', n===0);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
