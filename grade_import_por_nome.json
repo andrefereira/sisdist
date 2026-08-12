@@ -1,0 +1,1652 @@
+[
+  {
+    "nome": "André Ferreira",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Matemática",
+    "sala": "G03"
+  },
+  {
+    "nome": "André Ferreira",
+    "dia": "Terça",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Matemática",
+    "sala": "I03"
+  },
+  {
+    "nome": "André Ferreira",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Matemática",
+    "sala": "G05"
+  },
+  {
+    "nome": "André Ferreira",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Matemática",
+    "sala": "I03"
+  },
+  {
+    "nome": "André Ferreira",
+    "dia": "Quinta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º TAI",
+    "turma": "2º Período de Tecnologia em Automação Industrial",
+    "disciplina": "Geometria e Álgebra Aplicada",
+    "sala": "G01"
+  },
+  {
+    "nome": "Alexsander",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Filosofia",
+    "sala": "G04"
+  },
+  {
+    "nome": "Alexsander",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Filosofia",
+    "sala": "G05"
+  },
+  {
+    "nome": "Alexsander",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "4º ADS",
+    "turma": "Tecnologia em Análise e Desenvolvimento de Sistemas - 4º Período",
+    "disciplina": "Ética, Cidadania e Sociedade",
+    "sala": "B04"
+  },
+  {
+    "nome": "Alexsander",
+    "dia": "Quinta",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "2º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 2º Período",
+    "disciplina": "Ética, Cidadania e Sociedade",
+    "sala": "E02"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Empreendedorismo",
+    "sala": "G05"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Empreendedorismo",
+    "sala": "G04"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "1º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 1º Período",
+    "disciplina": "Adm de Mat e Patrimônio",
+    "sala": "E01"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Terça",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 2º Período",
+    "disciplina": "Gestão de Vendas",
+    "sala": "E02"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "6º TALI",
+    "turma": "Tecnologia em Alimentos - 6º Período",
+    "disciplina": "Extensão IV",
+    "sala": "I04"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Quinta",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 2º Período",
+    "disciplina": "Administração Financeira",
+    "sala": "E02"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Sexta",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "1º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 1º Período",
+    "disciplina": "Noções de Direito Constitucional",
+    "sala": "E01"
+  },
+  {
+    "nome": "Carlos Eduardo",
+    "dia": "Sexta",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 2º Período",
+    "disciplina": "Noções de Direito do Consumidor",
+    "sala": "E02"
+  },
+  {
+    "nome": "Carlos Eduardo Boiago",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Matemática",
+    "sala": "G01"
+  },
+  {
+    "nome": "Carlos Eduardo Boiago",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º AGRI",
+    "turma": "2º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Matemática",
+    "sala": "I01"
+  },
+  {
+    "nome": "Carlos Eduardo Boiago",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º AGRI",
+    "turma": "2º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Matemática",
+    "sala": "I01"
+  },
+  {
+    "nome": "Carlos Eduardo Boiago",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º TAI",
+    "turma": "2º Período de Tecnologia em Automação Industrial",
+    "disciplina": "Cálculo Diferencial e Integral",
+    "sala": "G01"
+  },
+  {
+    "nome": "Carlos Eduardo Boiago",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "1º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 1º Período",
+    "disciplina": "Matemática Aplicada",
+    "sala": "E01"
+  },
+  {
+    "nome": "Carlos Eduardo Boiago",
+    "dia": "Quinta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2ºADS",
+    "turma": "Tecnologia em Análise e Desenvolvimento de Sistemas - 2º Período",
+    "disciplina": "Cálculo Diferencial e Integral I",
+    "sala": "B07"
+  },
+  {
+    "nome": "Cleudes",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "G05"
+  },
+  {
+    "nome": "Cleudes",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "1º QUIM",
+    "turma": "1º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Física Aplicada",
+    "sala": "E06"
+  },
+  {
+    "nome": "Cleudes",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "1º QUIM",
+    "turma": "1º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "E06"
+  },
+  {
+    "nome": "Cleudes",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "I05"
+  },
+  {
+    "nome": "Cleudes",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "6º TAI",
+    "turma": "Tecnologia em Automação Industrial - 6º Período",
+    "disciplina": "Processos de Fabricação",
+    "sala": "G03"
+  },
+  {
+    "nome": "Cleudes",
+    "dia": "Quinta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TAI",
+    "turma": "Tecnologia em Automação Industrial - 4º Período",
+    "disciplina": "Resistência de Materiais",
+    "sala": "G02"
+  },
+  {
+    "nome": "Donizete",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "G03"
+  },
+  {
+    "nome": "Donizete",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "G02"
+  },
+  {
+    "nome": "Donizete",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "I03"
+  },
+  {
+    "nome": "Donizete",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "1º AGRI A",
+    "turma": "1º Ano Agricultura - A Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "E02"
+  },
+  {
+    "nome": "Donizete",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "1º ELETRO",
+    "turma": "1º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "E01"
+  },
+  {
+    "nome": "Donizete",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "1º AGRI B",
+    "turma": "1º Ano Agricultura - B Integrado ao Ensino Médio",
+    "disciplina": "Física",
+    "sala": "E03"
+  },
+  {
+    "nome": "Evelyn",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "I03"
+  },
+  {
+    "nome": "Evelyn",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "G03"
+  },
+  {
+    "nome": "Evelyn",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º AGRI",
+    "turma": "2º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "I01"
+  },
+  {
+    "nome": "Evelyn",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º INFO",
+    "turma": "2º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "I04"
+  },
+  {
+    "nome": "Evelyn",
+    "dia": "Segunda",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TALI",
+    "turma": "Tecnologia em Alimentos - 4º Período",
+    "disciplina": "Química e Bioquímica de Alimentos",
+    "sala": "I01"
+  },
+  {
+    "nome": "Evelyn",
+    "dia": "Quinta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TALI",
+    "turma": "Tecnologia em Alimentos - 4º Período",
+    "disciplina": "Extensão III",
+    "sala": "I01"
+  },
+  {
+    "nome": "Fabricio",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Geografia",
+    "sala": "G04"
+  },
+  {
+    "nome": "Fabricio",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º AGRI",
+    "turma": "2º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Geografia Aplicada",
+    "sala": "I01"
+  },
+  {
+    "nome": "Fabricio",
+    "dia": "Terça",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Geografia",
+    "sala": "G05"
+  },
+  {
+    "nome": "Fabricio",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Geografia",
+    "sala": "G02"
+  },
+  {
+    "nome": "Fabricio",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Geografia",
+    "sala": "G03"
+  },
+  {
+    "nome": "Fabricio",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Geografia",
+    "sala": "G01"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º QUIM",
+    "turma": "1º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "E06"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "G04"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Quinta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "G05"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Quinta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "1º ELETRO",
+    "turma": "1º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "E01"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "G01"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "1º AGRI B",
+    "turma": "1º Ano Agricultura - B Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "E03"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "G03"
+  },
+  {
+    "nome": "Gilmar",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "G02"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Terça",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "G04"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "1º QUIM",
+    "turma": "1º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Química I",
+    "sala": "E06"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Operações Unitárias",
+    "sala": "I05"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Quinta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º QUIM",
+    "turma": "1º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Química Experimental",
+    "sala": "E06"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Quinta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Processos Industriais",
+    "sala": "G05"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Operações Unitárias",
+    "sala": "I05"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Processos Industriais",
+    "sala": "G05"
+  },
+  {
+    "nome": "Henrique",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "TPQ-OE",
+    "turma": "Tecnologia em Processos Químicos - Oferta Especial",
+    "disciplina": "Cinética e Reatores",
+    "sala": "G05"
+  },
+  {
+    "nome": "Humberto",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Empreendedorismo",
+    "sala": "G02"
+  },
+  {
+    "nome": "Humberto",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Empreendedorismo",
+    "sala": "G03"
+  },
+  {
+    "nome": "Humberto",
+    "dia": "Segunda",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "1º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 1º Período",
+    "disciplina": "Introdução à Administração",
+    "sala": "E01"
+  },
+  {
+    "nome": "Humberto",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "4º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 4º Período",
+    "disciplina": "Empreendedorismo",
+    "sala": "E04"
+  },
+  {
+    "nome": "Humberto",
+    "dia": "Segunda",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ADMCONC",
+    "turma": "Técnico em Administração Concomitante - 2º Período",
+    "disciplina": "Gestão Ambiental",
+    "sala": "E02"
+  },
+  {
+    "nome": "Humberto",
+    "dia": "Terça",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TALI",
+    "turma": "Tecnologia em Alimentos - 4º Período",
+    "disciplina": "Gestão Ambiental",
+    "sala": "I01"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "I03"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Terça",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º AGRI B",
+    "turma": "1º Ano Agricultura - B Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "E03"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "1º AGRO",
+    "turma": "1º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Inglês",
+    "sala": "E04"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "1º AGRI B",
+    "turma": "1º Ano Agricultura - B Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "E03"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Terça",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "1º AGRI A",
+    "turma": "1º Ano Agricultura - A Integrado ao Ensino Médio",
+    "disciplina": "Inglês",
+    "sala": "E02"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Quarta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º CC",
+    "turma": "Ciência da Computação - 2º Período",
+    "disciplina": "Inglês Instrumental",
+    "sala": "B07"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "1º AGRI A",
+    "turma": "1º Ano Agricultura - A Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "E02"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "1º ELETRO",
+    "turma": "1º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Inglês",
+    "sala": "E01"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "1º AGRI A",
+    "turma": "1º Ano Agricultura - A Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "E02"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "1º INFO",
+    "turma": "1º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Inglês",
+    "sala": "E05"
+  },
+  {
+    "nome": "Isabela",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "21:50",
+    "turma_codigo": "CENID ING PREINTERMEDIARIO",
+    "turma": "Cenid Inglês Pré-Intermediário",
+    "disciplina": "Inglês - Pré-Intermediário",
+    "sala": "G04"
+  },
+  {
+    "nome": "Junia",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "G02"
+  },
+  {
+    "nome": "Junia",
+    "dia": "Terça",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "G01"
+  },
+  {
+    "nome": "Junia",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "G03"
+  },
+  {
+    "nome": "Junia",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Bioquímica",
+    "sala": "G05"
+  },
+  {
+    "nome": "Junia",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "I05"
+  },
+  {
+    "nome": "Junia",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "G04"
+  },
+  {
+    "nome": "Leandro",
+    "dia": "Quinta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º AGRO",
+    "turma": "2º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "I02"
+  },
+  {
+    "nome": "Leandro",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º AGRI B",
+    "turma": "1º Ano Agricultura - B Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "E03"
+  },
+  {
+    "nome": "Leandro",
+    "dia": "Quinta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "I03"
+  },
+  {
+    "nome": "Leandro",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º INFO",
+    "turma": "2º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Biologia",
+    "sala": "I04"
+  },
+  {
+    "nome": "Lindolfo",
+    "dia": "Terça",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Projeto Social",
+    "sala": "F02"
+  },
+  {
+    "nome": "Lindolfo",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "16:50",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Acionamentos Elétricos",
+    "sala": "F02"
+  },
+  {
+    "nome": "Lindolfo",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 2º Período",
+    "disciplina": "Comando e Proteção",
+    "sala": "F02"
+  },
+  {
+    "nome": "Lindolfo",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 4º Período",
+    "disciplina": "Projetos e Práticas Integradas",
+    "sala": "F02"
+  },
+  {
+    "nome": "Lindolfo",
+    "dia": "Sexta",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 2º Período",
+    "disciplina": "Comando e Proteção",
+    "sala": "F02"
+  },
+  {
+    "nome": "Lucio",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Sistemas Elétricos de Potência",
+    "sala": "I03"
+  },
+  {
+    "nome": "Lucio",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Higiene e Segurança",
+    "sala": "G03"
+  },
+  {
+    "nome": "Lucio",
+    "dia": "Segunda",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TAI",
+    "turma": "Tecnologia em Automação Industrial - 4º Período",
+    "disciplina": "Eletrônica Analógica II",
+    "sala": "G02"
+  },
+  {
+    "nome": "Lucio",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º TAI",
+    "turma": "2º Período de Tecnologia em Automação Industrial",
+    "disciplina": "Instalações e Acionamentos Elétricos",
+    "sala": "G01"
+  },
+  {
+    "nome": "Lucio",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 2º Período",
+    "disciplina": "Solar Fotovoltaica II",
+    "sala": "E03"
+  },
+  {
+    "nome": "Marcelo Loures",
+    "dia": "Terça",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º INFO",
+    "turma": "1º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Int. Sistemas Digitais",
+    "sala": "F01"
+  },
+  {
+    "nome": "Marcelo Loures",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º INFO",
+    "turma": "2º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Lab. de Hardware",
+    "sala": "F01"
+  },
+  {
+    "nome": "Marcelo Loures",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "6º ADS",
+    "turma": "Tecnologia em Análise e Desenvolvimento de Sistemas - 6º Período",
+    "disciplina": "Optativa II - Microcontroladores",
+    "sala": "B05"
+  },
+  {
+    "nome": "Marcelo Loures",
+    "dia": "Quarta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º TAI",
+    "turma": "2º Período de Tecnologia em Automação Industrial",
+    "disciplina": "Sistemas Digitais",
+    "sala": "B06"
+  },
+  {
+    "nome": "Mayra",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Espanhol",
+    "sala": "G05"
+  },
+  {
+    "nome": "Mayra",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º INFO",
+    "turma": "1º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "E05"
+  },
+  {
+    "nome": "Mayra",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Espanhol",
+    "sala": "I03"
+  },
+  {
+    "nome": "Mayra",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "1º INFO",
+    "turma": "1º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "E05"
+  },
+  {
+    "nome": "Mayra",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "21:50",
+    "turma_codigo": "CENID ESP PREINTER",
+    "turma": "Cenid Espanhol Pré-Intermediário",
+    "disciplina": "Espanhol - Pré-Interm.",
+    "sala": "G04"
+  },
+  {
+    "nome": "Michele",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º AGRO",
+    "turma": "2º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Artes",
+    "sala": "I02"
+  },
+  {
+    "nome": "Michele",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Artes",
+    "sala": "I03"
+  },
+  {
+    "nome": "Michele",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º AGRI",
+    "turma": "2º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Artes",
+    "sala": "I01"
+  },
+  {
+    "nome": "Michele",
+    "dia": "Terça",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º INFO",
+    "turma": "2º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Artes",
+    "sala": "I04"
+  },
+  {
+    "nome": "Michele",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Artes",
+    "sala": "I05"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Terça",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "I05"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º AGRI A",
+    "turma": "1º Ano Agricultura - A Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "E02"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Quinta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º INFO",
+    "turma": "1º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "E05"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º AGRO",
+    "turma": "2º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "I02"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º AGRI",
+    "turma": "2º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "I01"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "I03"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Quinta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º INFO",
+    "turma": "2º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "I04"
+  },
+  {
+    "nome": "Patrícia",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "1º AGRO",
+    "turma": "1º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "História",
+    "sala": "E04"
+  },
+  {
+    "nome": "Rodrigo Grassi",
+    "dia": "Segunda",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º TAI",
+    "turma": "2º Período de Tecnologia em Automação Industrial",
+    "disciplina": "Lógica de Programação",
+    "sala": "B03'"
+  },
+  {
+    "nome": "Rodrigo Nogueira",
+    "dia": "Quinta",
+    "inicio": "08:00",
+    "fim": "11:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Automação Industrial II",
+    "sala": "G03"
+  },
+  {
+    "nome": "Rodrigo Nogueira",
+    "dia": "Sexta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "1º ELETRO",
+    "turma": "1º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Introdução à Lógica de Programação",
+    "sala": "E01"
+  },
+  {
+    "nome": "Rodrigo Nogueira",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Automação Industrial",
+    "sala": "I03"
+  },
+  {
+    "nome": "Rodrigo Nogueira",
+    "dia": "Quinta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 4º Período",
+    "disciplina": "Automação Industrial II",
+    "sala": "E04"
+  },
+  {
+    "nome": "Rodrigo Nogueira",
+    "dia": "Sexta",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TAI",
+    "turma": "Tecnologia em Automação Industrial - 4º Período",
+    "disciplina": "Automação Pneumática e Hidráulica",
+    "sala": "G02"
+  },
+  {
+    "nome": "Rogério",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G02"
+  },
+  {
+    "nome": "Rogério",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G05"
+  },
+  {
+    "nome": "Rogério",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "I05"
+  },
+  {
+    "nome": "Rogério",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G02"
+  },
+  {
+    "nome": "Rogério",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G05"
+  },
+  {
+    "nome": "Romeu",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Eficiência Energética",
+    "sala": "G03"
+  },
+  {
+    "nome": "Romeu",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Eletrônica Industrial",
+    "sala": "G03"
+  },
+  {
+    "nome": "Romeu",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Fundamentos de Eletrônica",
+    "sala": "I03"
+  },
+  {
+    "nome": "Romeu",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "PIEP-CAD",
+    "sala": "F02"
+  },
+  {
+    "nome": "Romeu",
+    "dia": "Segunda",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "2º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 2º Período",
+    "disciplina": "Fundamentos da Eletrônica Analógica e Digital",
+    "sala": "E03"
+  },
+  {
+    "nome": "Romeu",
+    "dia": "Sexta",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "2º ELETROCONC",
+    "turma": "Técnico em Eletrotécnica Concomitante - 2º Período",
+    "disciplina": "Fundamentos da Eletrônica Analógica e Digital",
+    "sala": "E03"
+  },
+  {
+    "nome": "Romeu",
+    "dia": "Terça",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "6º TALI",
+    "turma": "Tecnologia em Alimentos - 6º Período",
+    "disciplina": "Desenvolvimento Assistido por Computador",
+    "sala": "F01"
+  },
+  {
+    "nome": "Sabrina",
+    "dia": "Terça",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Química III",
+    "sala": "G05"
+  },
+  {
+    "nome": "Sabrina",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Química III",
+    "sala": "G05"
+  },
+  {
+    "nome": "Sabrina",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "G01"
+  },
+  {
+    "nome": "Sabrina",
+    "dia": "Segunda",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TPQ",
+    "turma": "Tecnologia em Processos Químicos - 4º Período",
+    "disciplina": "Extensão III",
+    "sala": "G05"
+  },
+  {
+    "nome": "Sabrina",
+    "dia": "Quinta",
+    "inicio": "21:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TPQ",
+    "turma": "Tecnologia em Processos Químicos - 4º Período",
+    "disciplina": "Extensão III",
+    "sala": "G05"
+  },
+  {
+    "nome": "Sérgio",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Métodos Instrumentais de Análise",
+    "sala": "G05"
+  },
+  {
+    "nome": "Sérgio",
+    "dia": "Sexta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º AGRO",
+    "turma": "2º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "I02"
+  },
+  {
+    "nome": "Sérgio",
+    "dia": "Quinta",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º AGRO",
+    "turma": "2º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "I02"
+  },
+  {
+    "nome": "Sérgio",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º QUIM",
+    "turma": "3º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Química Ambiental",
+    "sala": "G05"
+  },
+  {
+    "nome": "Sérgio",
+    "dia": "Quinta",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º AGRO",
+    "turma": "3º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Química",
+    "sala": "G02"
+  },
+  {
+    "nome": "Sérgio",
+    "dia": "Terça",
+    "inicio": "19:00",
+    "fim": "22:40",
+    "turma_codigo": "4º TPQ",
+    "turma": "Tecnologia em Processos Químicos - 4º Período",
+    "disciplina": "Química Analítica Quantitativa",
+    "sala": "G05"
+  },
+  {
+    "nome": "Sérgio",
+    "dia": "Sexta",
+    "inicio": "19:00",
+    "fim": "20:40",
+    "turma_codigo": "6º TALI",
+    "turma": "Tecnologia em Alimentos - 6º Período",
+    "disciplina": "Tratamento de Resíduos e Efluentes",
+    "sala": "I04"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Segunda",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G01"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Terça",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G03"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Quarta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G04"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Segunda",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "2º AGRO",
+    "turma": "2º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Inglês",
+    "sala": "I02"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Terça",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º INFO",
+    "turma": "3º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G04"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Quarta",
+    "inicio": "10:00",
+    "fim": "11:40",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Inglês",
+    "sala": "G03"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º ELETRO",
+    "turma": "3º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G03"
+  },
+  {
+    "nome": "Susan",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Português",
+    "sala": "G01"
+  },
+  {
+    "nome": "Teresa",
+    "dia": "Quinta",
+    "inicio": "08:00",
+    "fim": "09:40",
+    "turma_codigo": "2º INFO",
+    "turma": "2º Ano Informática Integrado ao Ensino Médio",
+    "disciplina": "Educação Física",
+    "sala": "I04"
+  },
+  {
+    "nome": "Teresa",
+    "dia": "Segunda",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º QUIM",
+    "turma": "2º Ano Química Integrado ao Ensino Médio",
+    "disciplina": "Educação Física",
+    "sala": "I05"
+  },
+  {
+    "nome": "Teresa",
+    "dia": "Terça",
+    "inicio": "13:10",
+    "fim": "14:50",
+    "turma_codigo": "2º ELETRO",
+    "turma": "2º Ano Eletrotécnica Integrado ao Ensino Médio",
+    "disciplina": "Educação Física",
+    "sala": "I03"
+  },
+  {
+    "nome": "Teresa",
+    "dia": "Segunda",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "3º AGRI",
+    "turma": "3º Ano Agricultura Integrado ao Ensino Médio",
+    "disciplina": "Educação Física",
+    "sala": "G01"
+  },
+  {
+    "nome": "Teresa",
+    "dia": "Terça",
+    "inicio": "15:10",
+    "fim": "16:50",
+    "turma_codigo": "2º AGRO",
+    "turma": "2º Ano Agroindústria Integrado ao Ensino Médio",
+    "disciplina": "Educação Física",
+    "sala": "I02"
+  }
+]

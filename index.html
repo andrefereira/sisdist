@@ -626,6 +626,22 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
         </div>
 
         <div class="config-card">
+          <div class="config-card-head"><h3>Importar em lote — ainda sem e-mail dos professores</h3></div>
+          <div class="config-card-body">
+            <div class="box warn">
+              Casa professor por <strong>nome</strong> em vez de e-mail. Se o professor ainda não existir no SisDist, ele é criado automaticamente com um e-mail temporário (<code>@pendente.sisdist.local</code>) — a aba Trocas já funciona pra achar colegas, mas <strong>esse professor só consegue logar de verdade depois que alguém trocar o e-mail placeholder pelo real dele</strong>, na aba "Áreas & Profs".
+            </div>
+            <p class="text-sm text-muted mb-12">
+              Formato: <code>[{"nome":"...","dia":"Segunda","inicio":"08:00","fim":"09:40","turma_codigo":"3ELETRO","turma":"3º Ano Eletrotécnica","disciplina":"Matemática","sala":"G03"}, ...]</code>.
+              Também substitui toda a grade do semestre atual.
+            </p>
+            <textarea id="grade-json-nome" rows="6" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:monospace;font-size:.8rem;margin-bottom:10px" placeholder="[ ... ]"></textarea>
+            <button class="btn btn-primary btn-sm" onclick="importarGradeJSONPorNome()">⬆ Importar por nome</button>
+            <div id="grade-import-nome-resultado" class="mt-12"></div>
+          </div>
+        </div>
+
+        <div class="config-card">
           <div class="config-card-head">
             <h3>Grade do Semestre Ativo</h3>
             <button class="btn btn-primary btn-sm" onclick="toggleForm('fa-grade')">+ Adicionar</button>
@@ -1695,6 +1711,25 @@ async function importarGradeJSON(){
     ${erros.length ? '<br>'+erros.length+' erro(s):<br>'+erros.map(e=>`• ${e.email||'—'}: ${e.erro}`).join('<br>') : ''}
   </div>`;
   await loadMgrData(); renderGrade();
+}
+
+async function importarGradeJSONPorNome(){
+  const raw = document.getElementById('grade-json-nome').value.trim();
+  const resDiv = document.getElementById('grade-import-nome-resultado');
+  if(!CUR.semestre){ toast('Nenhum semestre selecionado.','err'); return; }
+  let itens;
+  try { itens = JSON.parse(raw); if(!Array.isArray(itens)) throw new Error('esperado um array'); }
+  catch(e){ resDiv.innerHTML = `<div class="box warn">JSON inválido: ${e.message}</div>`; return; }
+  if(!confirm(`Isso substitui toda a grade do semestre "${CUR.semestre.nome}" pelos ${itens.length} itens colados, criando professores novos (e-mail placeholder) quando necessário. Continuar?`)) return;
+
+  const { data, error } = await db.rpc('gestor_importar_grade_por_nome', { p_semestre_id: CUR.semestre.id, p_itens: itens });
+  if(error){ resDiv.innerHTML = `<div class="box warn">${error.message}</div>`; return; }
+  const erros = data?.erros||[];
+  resDiv.innerHTML = `<div class="box ${erros.length?'warn':'ok'}">
+    ${data.importados} aula(s) importada(s). ${data.professores_criados} professor(es) novo(s) criado(s) com e-mail placeholder.
+    ${erros.length ? '<br>'+erros.length+' erro(s):<br>'+erros.map(e=>`• ${e.nome||'—'}: ${e.erro}`).join('<br>') : ''}
+  </div>`;
+  await loadMgrData(); renderGrade(); populateGradeProfSelect();
 }
 
 // ── Status Tab ──
