@@ -612,6 +612,17 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
         </div>
 
         <div class="config-card">
+          <div class="config-card-head"><h3>🔄 Atualizar da fonte oficial (IFTM)</h3></div>
+          <div class="config-card-body">
+            <p class="text-sm text-muted mb-12">
+              Busca a grade direto de <code>iftmitb.com.br/horarios/professores</code> e importa automaticamente, casando por nome (mesmo mecanismo da importação por nome abaixo — professores novos entram com e-mail placeholder). Sempre substitui toda a grade do semestre atual pela versão mais recente do site.
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="atualizarGradeDoIFTM()" id="btn-atualizar-iftm">⬇ Buscar e importar agora</button>
+            <div id="grade-iftm-resultado" class="mt-12"></div>
+          </div>
+        </div>
+
+        <div class="config-card">
           <div class="config-card-head"><h3>Importar em lote (JSON)</h3></div>
           <div class="config-card-body">
             <p class="text-sm text-muted mb-12">
@@ -1711,6 +1722,39 @@ async function importarGradeJSON(){
     ${erros.length ? '<br>'+erros.length+' erro(s):<br>'+erros.map(e=>`• ${e.email||'—'}: ${e.erro}`).join('<br>') : ''}
   </div>`;
   await loadMgrData(); renderGrade();
+}
+
+async function atualizarGradeDoIFTM(){
+  const resDiv = document.getElementById('grade-iftm-resultado');
+  const btn = document.getElementById('btn-atualizar-iftm');
+  if(!CUR.semestre){ toast('Nenhum semestre selecionado.','err'); return; }
+  if(!confirm(`Isso busca a grade mais recente em iftmitb.com.br e substitui toda a grade do semestre "${CUR.semestre.nome}". Continuar?`)) return;
+
+  btn.disabled = true; btn.textContent = 'Buscando…';
+  resDiv.innerHTML = '';
+  try {
+    const { data, error } = await withTimeout(
+      db.functions.invoke('atualizar-grade-iftm', { body: { semestre_id: CUR.semestre.id } }),
+      30000, 'Atualizar grade do IFTM'
+    );
+    if(error){
+      let msg = error.message;
+      try { const body = await error.context.json(); if(body?.error) msg = body.error; } catch {}
+      resDiv.innerHTML = `<div class="box warn">${msg}</div>`;
+      return;
+    }
+    const erros = data?.erros||[];
+    resDiv.innerHTML = `<div class="box ${erros.length?'warn':'ok'}">
+      Fonte: <code>${data.fonte}</code> (${data.buscados} aula(s) encontrada(s) no site).<br>
+      ${data.importados} aula(s) importada(s). ${data.professores_criados} professor(es) novo(s) criado(s) com e-mail placeholder.
+      ${erros.length ? '<br>'+erros.length+' erro(s):<br>'+erros.map(e=>`• ${e.nome||'—'}: ${e.erro}`).join('<br>') : ''}
+    </div>`;
+    await loadMgrData(); renderGrade(); populateGradeProfSelect();
+  } catch(e){
+    resDiv.innerHTML = `<div class="box warn">${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '⬇ Buscar e importar agora';
+  }
 }
 
 async function importarGradeJSONPorNome(){
