@@ -736,7 +736,20 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
     <button class="btn-exit" onclick="logout()">Sair</button>
   </div>
 
+  <!-- Banner: gestor atuando em nome de outro professor -->
+  <div id="tr-banner-outro" class="hidden" style="background:#fff3e0;border-left:5px solid #e65100;padding:12px 24px;display:flex;gap:10px;align-items:center;font-size:.87rem;color:#bf360c">
+    <span style="font-size:1.1rem">⚠️</span>
+    <span>Você está atuando em nome de <strong id="tr-banner-nome"></strong>. Pode consultar a grade e as trocas e enviar propostas em nome dele(a). <em>Aceitar, recusar, confirmar e cancelar continuam sendo feitos pelo(a) próprio(a) professor(a).</em></span>
+  </div>
+
   <div style="max-width:900px;margin:0 auto;padding:24px">
+    <!-- Seletor do gestor: consultar/propor como qualquer professor do campus -->
+    <div class="card-sm hidden" id="tr-gestor-bar">
+      <h3>Consultar e propor trocas como</h3>
+      <p class="text-sm text-muted mb-12">Como gestor, você pode ver a grade e as trocas de qualquer professor do campus e enviar propostas em nome dele(a).</p>
+      <select id="tr-select-prof" onchange="trTrocarProfessorAlvo()" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px"></select>
+    </div>
+
     <nav class="tr-tabs">
       <button class="tr-tab-btn active" onclick="showTrocasTab('tr-propor')" id="tb-tr-propor">🔄 Propor Troca</button>
       <button class="tr-tab-btn" onclick="showTrocasTab('tr-recebidas')" id="tb-tr-recebidas">📥 Recebidas <span class="badge hidden" id="badge-tr-recebidas">0</span></button>
@@ -752,12 +765,12 @@ h1{font-size:1.6rem}h2{font-size:1.2rem}h3{font-size:1rem}
 
       <div class="card-sm hidden" id="tr-bloco-aulas">
         <h3>2. Escolha a aula</h3>
-        <p class="text-sm text-muted mb-12">Aulas da sua grade nesse dia da semana.</p>
+        <p class="text-sm text-muted mb-12" id="tr-txt-aulas">Aulas da sua grade nesse dia da semana.</p>
         <div id="tr-lista-aulas" class="lista-cartoes"></div>
       </div>
 
       <div class="card-sm hidden" id="tr-bloco-colegas">
-        <h3>3. Colegas que podem dar essa aula por você</h3>
+        <h3 id="tr-titulo-colegas">3. Colegas que podem dar essa aula por você</h3>
         <p class="text-sm text-muted mb-12">Mesma turma, sem conflito de horário nesse dia.</p>
         <div id="tr-lista-colegas" class="lista-cartoes"></div>
       </div>
@@ -810,7 +823,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON, {
 // Se esta mensagem NÃO aparecer no console, o navegador está executando
 // uma cópia ANTIGA em cache — faça um hard refresh (Ctrl+Shift+R / Ctrl+F5)
 // ou republique o arquivo no GitHub Pages.
-const APP_VERSION = '2026-08-11.1-trocas';
+const APP_VERSION = '2026-10-06.1-trocas-gestor';
 console.log('[SisDist] versão', APP_VERSION);
 
 // ── State ──────────────────────────────────────────────────────
@@ -2205,6 +2218,16 @@ async function loadMod2Result(){
 const DIAS_SEMANA_TR = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 let trTelaAnterior = 's-professor'; // para onde "← Voltar" leva
 let trAulaSelecionada = null;
+let trAtuandoComo = null;     // professor em nome de quem o gestor atua; null = o próprio usuário logado
+let trPropostaPendente = null; // proposta aguardando o "Confirmar" do alerta (modo gestor)
+
+// Professor realmente logado. Quando o gestor está editando as preferências de outro
+// professor, CUR.prof aponta para o alvo e o gestor fica guardado em CUR.gestorProf.
+function trEu(){ return CUR.gestorProf || CUR.prof; }
+function trProfAlvo(){ return trAtuandoComo || trEu(); }
+function trAtuandoPorOutro(){ return !!trAtuandoComo && trAtuandoComo.id !== trEu()?.id; }
+function trEsc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function trDataBR(iso){ return (iso||'').split('-').reverse().join('/'); }
 
 // Converte "2026-08-10" (string de <input type="date">) no dia da semana em PT-BR.
 // Meio-dia UTC evita bug de fuso horário na virada da meia-noite.
@@ -2246,12 +2269,50 @@ function trBuscarCandidatos(todasAulas, aulaAlvo){
 
 async function openTrocasScreen(){
   trTelaAnterior = document.querySelector('.screen.active')?.id || 's-professor';
-  document.getElementById('tr-name-top').textContent = CUR.prof?.nome||'';
+  document.getElementById('tr-name-top').textContent = trEu()?.nome||'';
+  // Gestor que estava editando as preferências de outro professor já abre atuando em nome dele(a).
+  const editandoOutro = CUR.isGestor && CUR.gestorProf && CUR.gestorProf.id !== CUR.prof.id;
+  trAtuandoComo = editandoOutro ? CUR.prof : null;
+  trPrepararSeletorGestor();
+  trAtualizarModoAtuando();
+  document.getElementById('tr-input-data').value = '';
   showScreen('s-trocas');
   showTrocasTab('tr-propor');
   await loadTrocasData();
 }
 function fecharTrocas(){ showScreen(trTelaAnterior); }
+
+// Gestor: lista todos os professores do campus para consultar/propor em nome deles.
+function trPrepararSeletorGestor(){
+  const bar = document.getElementById('tr-gestor-bar');
+  bar.classList.toggle('hidden', !CUR.isGestor);
+  if(!CUR.isGestor) return;
+  const eu = trEu();
+  const outros = CUR.profs.filter(p=>p.id!==eu.id).sort((a,b)=>a.nome.localeCompare(b.nome));
+  document.getElementById('tr-select-prof').innerHTML =
+    `<option value="${eu.id}">Eu mesmo(a) — ${trEsc(eu.nome)}</option>` +
+    outros.map(p=>`<option value="${p.id}">${trEsc(p.nome)}</option>`).join('');
+}
+async function trTrocarProfessorAlvo(){
+  const id = document.getElementById('tr-select-prof').value;
+  trAtuandoComo = id===trEu().id ? null : (CUR.profs.find(p=>p.id===id)||null);
+  trAtualizarModoAtuando();
+  document.getElementById('tr-input-data').value = '';
+  await loadTrocasData();
+}
+// Banner de aviso + textos da tela conforme o gestor esteja atuando em nome de outro professor.
+function trAtualizarModoAtuando(){
+  const outro = trAtuandoPorOutro();
+  const nome = outro ? trAtuandoComo.nome : '';
+  document.getElementById('tr-banner-outro').classList.toggle('hidden', !outro);
+  document.getElementById('tr-banner-nome').textContent = nome;
+  document.getElementById('tr-txt-aulas').textContent = outro
+    ? `Aulas de ${nome} nesse dia da semana.` : 'Aulas da sua grade nesse dia da semana.';
+  document.getElementById('tr-titulo-colegas').textContent = outro
+    ? `3. Colegas que podem dar essa aula por ${nome}` : '3. Colegas que podem dar essa aula por você';
+  const sel = document.getElementById('tr-select-prof');
+  if(sel && trProfAlvo()) sel.value = trProfAlvo().id;
+}
 
 function showTrocasTab(id){
   document.querySelectorAll('#s-trocas .tr-tab-panel').forEach(p=>p.classList.remove('active'));
@@ -2262,8 +2323,8 @@ function showTrocasTab(id){
 
 async function loadTrocasData(){
   const semAtivo = CUR.semestreAtivo || CUR.semestre;
-  if(!semAtivo || !CUR.prof) return;
-  const meuId = CUR.prof.id;
+  if(!semAtivo || !trEu()) return;
+  const meuId = trProfAlvo().id; // o próprio usuário ou, para o gestor, o professor selecionado
   const [minha, colegas, trocas] = await withTimeout(Promise.all([
     db.from('grade_aulas').select('*').eq('semestre_id',semAtivo.id).eq('prof_id',meuId),
     db.from('grade_aulas').select('*').eq('semestre_id',semAtivo.id),
@@ -2278,7 +2339,8 @@ async function loadTrocasData(){
   document.getElementById('tr-bloco-colegas').classList.add('hidden');
   renderTrocasRecebidas();
   renderTrocasEnviadas();
-  updateBadgeTrocas();
+  // O selo de pendências é do próprio usuário — não mostrar o de outro professor.
+  if(!trAtuandoPorOutro()) updateBadgeTrocas();
 }
 
 function trDataEscolhida(){
@@ -2290,7 +2352,8 @@ function trDataEscolhida(){
   const minhasAulas = CUR.minhaGrade.filter(a=>a.dia===dia).sort((a,b)=>a.inicio.localeCompare(b.inicio));
   const lista = document.getElementById('tr-lista-aulas');
   if(!minhasAulas.length){
-    lista.innerHTML = `<p class="text-sm text-muted">Você não tem aulas cadastradas na ${dia.toLowerCase()}-feira.</p>`;
+    const quem = trAtuandoPorOutro() ? trEsc(trAtuandoComo.nome) : 'Você';
+    lista.innerHTML = `<p class="text-sm text-muted">${quem} não tem aulas cadastradas na ${dia.toLowerCase()}-feira.</p>`;
   } else {
     lista.innerHTML = minhasAulas.map(a=>`
       <div class="cartao-aula" data-id="${a.id}" onclick="trSelecionarAula('${a.id}')">
@@ -2329,12 +2392,47 @@ function trSelecionarAula(aulaId){
 }
 
 async function trEnviarProposta(substitutoId, substitutoNome){
+  // Gestor propondo em nome de outro professor: exige confirmação explícita com alerta.
+  if(trAtuandoPorOutro()){ trAbrirAlertaPropostaGestor(substitutoId, substitutoNome); return; }
+  await trEnviarPropostaAgora(substitutoId, substitutoNome);
+}
+
+function trAbrirAlertaPropostaGestor(substitutoId, substitutoNome){
+  const aula = trAulaSelecionada;
   const data = document.getElementById('tr-input-data').value;
-  const { error } = await db.rpc('trocas_propor', {
-    p_horario_id: trAulaSelecionada.id, p_substituto_id: substitutoId, p_data_ausencia: data
-  });
-  if(error){ toast(error.message,'err'); return; }
-  showModal('Proposta enviada', `${substitutoNome} vai receber sua proposta e poderá aceitar propondo uma data de reposição.`);
+  const solicitante = trAtuandoComo.nome;
+  trPropostaPendente = { substitutoId, substitutoNome };
+  showModal('⚠️ Proposta em nome de outro professor', `
+    <div class="box warn" style="flex-direction:column;gap:4px">
+      <strong>Atenção: você está fazendo uma proposta de troca para outro professor.</strong>
+      <span>A proposta será registrada em nome de <strong>${trEsc(solicitante)}</strong> (e não em seu nome) e enviada a <strong>${trEsc(substitutoNome)}</strong>.</span>
+    </div>
+    <p style="margin-bottom:4px"><strong>Aula:</strong> ${trEsc(aula.disciplina)} — ${trEsc(aula.turma||aula.turma_codigo)}</p>
+    <p style="margin-bottom:4px"><strong>Dia e horário:</strong> ${aula.dia}, ${trDataBR(data)}, ${aula.inicio.slice(0,5)}–${aula.fim.slice(0,5)}</p>
+    <p class="text-sm text-muted">${trEsc(solicitante)} não será avisado(a) por e-mail: confirme com ele(a) antes de enviar.</p>
+  `, `<button class="btn btn-primary" onclick="trConfirmarPropostaGestor()">Confirmar e enviar em nome de ${trEsc(solicitante)}</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>`);
+}
+async function trConfirmarPropostaGestor(){
+  const p = trPropostaPendente;
+  if(!p) return;
+  trPropostaPendente = null; // evita envio duplicado por clique repetido
+  await trEnviarPropostaAgora(p.substitutoId, p.substitutoNome);
+}
+
+async function trEnviarPropostaAgora(substitutoId, substitutoNome){
+  const data = document.getElementById('tr-input-data').value;
+  const outro = trAtuandoPorOutro();
+  const { error } = outro
+    ? await db.rpc('gestor_trocas_propor', {
+        p_solicitante_id: trAtuandoComo.id, p_horario_id: trAulaSelecionada.id,
+        p_substituto_id: substitutoId, p_data_ausencia: data })
+    : await db.rpc('trocas_propor', {
+        p_horario_id: trAulaSelecionada.id, p_substituto_id: substitutoId, p_data_ausencia: data });
+  if(error){ closeModal(); toast(error.message,'err'); return; }
+  showModal('Proposta enviada', outro
+    ? `${trEsc(substitutoNome)} vai receber a proposta em nome de ${trEsc(trAtuandoComo.nome)} e poderá aceitar propondo uma data de reposição.`
+    : `${trEsc(substitutoNome)} vai receber sua proposta e poderá aceitar propondo uma data de reposição.`);
   document.getElementById('tr-input-data').value='';
   trDataEscolhida();
   await loadTrocasData();
@@ -2382,12 +2480,18 @@ function trCartaoTroca(t, tipo){
   const reposicao = t.data_reposicao_proposta
     ? `<div class="linha">Reposição proposta: ${t.reposicao_dia}, ${t.data_reposicao_proposta}, ${(t.reposicao_inicio||'').slice(0,5)}–${(t.reposicao_fim||'').slice(0,5)}</div>`
     : '';
+  const porGestao = t.criada_por_id
+    ? `<div class="linha text-muted">📝 Proposta registrada pela gestão em nome do solicitante.</div>` : '';
+  // Gestor atuando em nome de outro professor só consulta/propõe: aceitar, recusar,
+  // confirmar e cancelar são sempre do próprio professor (as RPCs agem como quem está logado).
+  if(trAtuandoPorOutro()) acoes = '';
   return `<div class="cartao-troca">
     <span class="status status-${t.status}">${TR_ROTULOS_STATUS[t.status]||t.status}</span>
     <div class="linha">${papel} <strong>${outroNome}</strong></div>
     <div class="linha">${t.disciplina} — ${t.turma||t.turma_codigo}</div>
     <div class="linha text-muted">Ausência: ${t.dia_semana}, ${t.data_ausencia}, ${(t.inicio||'').slice(0,5)}–${(t.fim||'').slice(0,5)}</div>
     ${reposicao}
+    ${porGestao}
     <div class="acoes-cartao">${acoes}</div>
   </div>`;
 }
